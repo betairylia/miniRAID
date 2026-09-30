@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using miniRAID.Backend;
 using UnityEngine;
 
@@ -10,6 +11,12 @@ namespace miniRAID.Buff
     {
         public GameObject gridFxPrefab;
         private HashSet<Vector3Int> shape = new();
+        private readonly Dictionary<Vector3Int, GameObject> renderedGrids = new();
+        // Report only cells whose current presentation is actually enabled. This is not an AI/hazard prediction.
+        public IEnumerable<Vector3Int> VisibleCells => renderedGrids
+            .Where(pair => pair.Value != null && pair.Value.activeInHierarchy &&
+                pair.Value.GetComponentsInChildren<Renderer>().Any(r => r.enabled && r.gameObject.activeInHierarchy))
+            .Select(pair => pair.Key);
         private HashSet<Vector3Int> incomingShape = new();
         private HashSet<Vector3Int> buffer = new();
 
@@ -18,9 +25,9 @@ namespace miniRAID.Buff
             shape = new();
         }
 
-        public void AddGrid(Vector3 position)
+        public GameObject AddGrid(Vector3 position)
         {
-            Instantiate(
+            return Instantiate(
                 gridFxPrefab,
                 new Vector3(position.x, position.y, position.z),
                 Quaternion.identity,
@@ -41,7 +48,7 @@ namespace miniRAID.Buff
             buffer.ExceptWith(shape);
             foreach (var p in buffer)
             {
-                AddGrid(Globals.backend.GridToBackendFloorPos(p));
+                renderedGrids[p] = AddGrid(Globals.backend.GridToBackendFloorPos(p));
             }
             
             shape.UnionWith(buffer);

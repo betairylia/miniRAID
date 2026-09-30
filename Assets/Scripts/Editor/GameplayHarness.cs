@@ -226,6 +226,22 @@ namespace miniRAID.EditorTools
                 if(node.resolvedStyle.display==DisplayStyle.None || node.resolvedStyle.visibility==Visibility.Hidden) return "unknown: panel hidden";
             return label?.text ?? "unknown: no displayed incoming text";
         }
+        static bool IsDisplayed(VisualElement element)
+        {
+            if (element == null) return false;
+            for (var node=element; node!=null; node=node.parent)
+                if (node.resolvedStyle.display==DisplayStyle.None || node.resolvedStyle.visibility==Visibility.Hidden || node.resolvedStyle.opacity<=0) return false;
+            return true;
+        }
+        static object[] VisibleTacticalText()
+        {
+            var view=UI.combatView;
+            var root=view.GetComponent<UIDocument>()?.rootVisualElement;
+            return new[]{ view.debugText, view.currentTurnPlaceholder }
+                .Concat(root == null ? Enumerable.Empty<Label>() : root.Query<Label>(className:"tactical-text").ToList())
+                .Where(label=>IsDisplayed(label) && !string.IsNullOrWhiteSpace(label.text))
+                .Select(label=>(object)new {source=string.IsNullOrEmpty(label.name)?"Text":label.name,text=label.text}).ToArray();
+        }
         static string UnitAt(Vector3Int grid)
         {
             var point=new PointCollider { Position=new Vector3(grid.x,grid.y,grid.z) };
@@ -247,12 +263,17 @@ namespace miniRAID.EditorTools
                     .Any(renderer=>renderer.enabled && renderer.gameObject.activeInHierarchy))
                 .SelectMany(o=>o.overlay.Select(c=>new { grid=Grid(Databackend.BackendToGridPos(c.Key)),kind=c.Value.ToString() }))
                 .OrderBy(c=>c.grid[0]).ThenBy(c=>c.grid[1]).ThenBy(c=>c.grid[2]).ThenBy(c=>c.kind).ToArray();
+            var effects=UnityEngine.Object.FindObjectsByType<Buff.GridEffectComponent>(FindObjectsSortMode.None)
+                .Where(effect=>effect.isActiveAndEnabled)
+                .SelectMany(effect=>effect.VisibleCells.Select(cell=>new {grid=Grid(cell),source=effect.gridFxPrefab?.name ?? effect.name}))
+                .OrderBy(cell=>cell.grid[0]).ThenBy(cell=>cell.grid[1]).ThenBy(cell=>cell.grid[2]).ThenBy(cell=>cell.source).ToArray();
             int offset=Math.Max(0,(int?)request["offset"] ?? 0),limit=Math.Clamp((int?)request["limit"] ?? 32,1,128);
             return new { session, version, units, hazards="unknown: no authoritative UI hazard classification",
                 overlays=new { count=cells.Length, offset, cells=cells.Skip(offset).Take(limit).ToArray() },
                 telegraphs=Scheduler.turnSchedule?.Where(t=>t.ShowInUI).Take(8)
                     .Select(t=>new { label=t.Label, turn=t.metadata.timestamp.currentTurnID }).ToArray(),
-                incomingText=VisibleIncoming(), prediction="unknown beyond displayed queue, incoming text and overlays" };
+                visibleGridEffects=new {count=effects.Length,offset,cells=effects.Skip(offset).Take(limit).ToArray()},
+                visibleText=VisibleTacticalText(), incomingText=VisibleIncoming(), prediction="unknown beyond displayed queue, incoming text and overlays" };
         }
 
         static string Validate(JObject r)

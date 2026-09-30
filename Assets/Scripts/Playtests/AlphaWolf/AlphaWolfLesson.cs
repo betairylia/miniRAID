@@ -174,7 +174,7 @@ namespace miniRAID.AlphaWolfPlaytest
             lessonPanel.AddToClassList("alpha-lesson");
             lessonPanel.styleSheets.Add(Resources.Load<StyleSheet>("UI/AlphaWolfLesson"));
             var title=new Label("ALPHA WOLF / THREE-PERSON LESSON");title.AddToClassList("alpha-title");lessonPanel.Add(title);
-            lessonText=new Label();lessonText.AddToClassList("alpha-text");lessonPanel.Add(lessonText);
+            lessonText=new Label {name="EncounterTelegraph"};lessonText.AddToClassList("alpha-text");lessonText.AddToClassList("tactical-text");lessonPanel.Add(lessonText);
             var hint=new Label("Purple: locked attack cells. Pass each actor; if nobody can act, click empty ground then EndTurn. Roar: burst within two rounds. Defeat the wolf to win.");hint.AddToClassList("alpha-hint");lessonPanel.Add(hint);
             restartButton=new Button(Restart){text="Restart lesson"};restartButton.AddToClassList("alpha-restart");lessonPanel.Add(restartButton);
             root.Add(lessonPanel);

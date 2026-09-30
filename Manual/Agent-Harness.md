@@ -133,3 +133,13 @@ python3 Tools/gameplay_harness.py '{"op":"options_detail","offset":0,"limit":16}
 - pending/timeout/fault 语义不变。已完成结果的效果标记冻结，后续目标操作不会改变此前菜单请求的历史结果。
 
 定向验收脚本 `Tools/test_gameplay_tactical.py --run --output /tmp/tactical-tests.json` 会重启 Play，验证 AlphaWolf 移动费用、只读查询、实体映射、真实运行时 AP 不足，以及 SlimeKing 资源与实际 EndTurn。包含明确标注的临时失败注入夹具：归属/部分失败检查不是自然发生的战斗证据。测试退出 Play 清理，不保存场景或修改游戏资产。
+
+### Rendered effects and tactical text
+
+`tactical` now also returns paged `visibleGridEffects: {count, offset, cells}`. Each cell has its exact grid and the visual prefab source name; it describes currently enabled renderers, not inferred hazard damage or hidden AI plans. `offset`/`limit` page effects independently of the overlay list. Disabled effects/cell renderers are excluded.
+
+`visibleText` identifies visible UI labels by `source` and `text`: TempInformation, CurrentTurn, and labels explicitly marked with the generic `tactical-text` class. The old `incomingText` still reports unknown when its separate Incoming panel is hidden. This does not unhide or read hidden text. Default observe and command responses do not gain these larger details.
+
+Verified with isolated presentation fixtures: actual AcidPool prefab cells, per-cell/whole-effect visibility, pagination, visible/hidden text, unchanged observe state across queries. These diagnostics do not cast damage or alter combat resources. Directional preview regression uses the real AcidBreath geometry in both LOS modes; on the test map 34 of 38 cells pass LOS and 38 of 38 pass when walls are ignored.
+
+Known design/documentation discrepancy left unchanged: Stellar Beacon's English text says six turns, while its current phase-timed duration is two Recovery stages. No duration/balance change is included; the intended player-facing duration needs design confirmation.
