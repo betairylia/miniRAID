@@ -585,6 +585,7 @@ namespace miniRAID
             {
                 yield return new JumpIn(Do(mob, target));
             }
+            else Globals.combatMgr.Instance.ReportActionFailure("invalid_target");
         }
 
         public override IEnumerator ActivateAbstract(MobData mob, SpellTarget target)
@@ -603,6 +604,7 @@ namespace miniRAID
 
             if(cooldownRemain > 0)
             {
+                Globals.combatMgr.Instance.ReportActionFailure("cooldown");
                 Globals.debugMessage.AddMessage($"{mob.nickname} 的 {data.name} 还没有准备好！");
                 yield break;
             }
@@ -633,6 +635,7 @@ namespace miniRAID
 
                 actionData.RequestValidator.EndState();
             }
+            else Globals.combatMgr.Instance.ReportActionFailure("action_check_failed");
         }
 
         public override SpellTarget QueryAbstractTarget(MobData source)

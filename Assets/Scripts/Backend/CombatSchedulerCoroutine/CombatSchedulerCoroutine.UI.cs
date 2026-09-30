@@ -36,9 +36,14 @@ namespace miniRAID
         MobRenderer _chosenMobRenderer = null;
 
         System.Func<IEnumerator> actionToDo = null;
+        public bool WaitingForPlayer { get; private set; }
+        public bool ActionPending => actionToDo != null;
+        public string ActionFailure { get; private set; }
+        public void ReportActionFailure(string reason) => ActionFailure = reason;
 
         public IEnumerator UIWaitPlayerInput()
         {
+            WaitingForPlayer = true;
             // Refresh UI state
             Globals.ui.Instance.EnterState();
 
@@ -54,13 +59,14 @@ namespace miniRAID
                 }
             }
 
+            WaitingForPlayer = false;
             playerPhaseEnd = false;
         }
 
         // Uses lazy evaluation of IEnumerator.
         public bool UIPickedAction(IEnumerator action, IEnumerator onActionFinished)
         {
-            if(actionToDo != null)
+            if(!WaitingForPlayer || actionToDo != null)
             {
                 Debug.LogError("CombatSchedulerCoroutine: UIPickedAction before previous action finished! Request overrided but nobody knows what will happen ...");
                 return false;
@@ -78,6 +84,7 @@ namespace miniRAID
             };
 
             Globals.logger?.Log($"[csc-UI] Set actionToDo to non-null value");
+            ActionFailure = null;
             actionToDo = OnFinishWrapper;
 
             return true;

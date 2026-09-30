@@ -23,8 +23,13 @@ namespace miniRAID.UI.TargetRequester
         public override void Request(
             MobData mob, RuntimeAction<FourDirectionalTarget> ract, OnRequestFinish onFinish, System.Action onCancel)
         {
+            IsAwaitingChoice = true;
             this.mob = mob;
             this.ract = ract;
+            currentStageCompleted = -1;
+            query_stack ??= new();
+            query_stack.Clear();
+            choice ??= new();
             choice.Clear();
 
             this.onFinish = onFinish;
@@ -34,12 +39,23 @@ namespace miniRAID.UI.TargetRequester
             ui.cursor.ChangeCollider(shape);
         }
 
-        public override void Submit(InputValue input)
+        public override System.Collections.Generic.IEnumerable<Vector3Int> Choices => new[] { mob.GridPosition + Vector3Int.forward, mob.GridPosition + Vector3Int.back, mob.GridPosition + Vector3Int.left, mob.GridPosition + Vector3Int.right };
+
+        public override bool TrySubmitGrid(Vector3Int grid)
         {
-            _Next(ui.cursor.GridPos);
+            if (!enabled || !IsAwaitingChoice || !Choices.Contains(grid)) return false;
+            UpdateCursor(grid);
+            _Next(grid);
             
             var dirc = Globals.backend.GetDominantDirection(mob.GridPosition, choice.First());
             Finish(new FourDirectionalTarget(dirc));
+            return true;
+        }
+
+        public override void Submit(InputValue input)
+        {
+            UpdateCursor(ui.cursor.GridPos);
+            TrySubmitGrid(ui.cursor.GridPos);
         }
 
         public override void OnStateEnter()

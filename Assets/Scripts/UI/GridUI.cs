@@ -297,11 +297,11 @@ namespace miniRAID.UI
             }
         }
 
-        public void WaitFor(IEnumerator action, IEnumerator onFinished)
+        public bool WaitFor(IEnumerator action, IEnumerator onFinished)
         {
             if (waitingAnimation)
             {
-                return;
+                return false;
             }
             
             IEnumerator Wrapper()
@@ -326,6 +326,7 @@ namespace miniRAID.UI
                 combatView.menu.HideMenu();
                 // mainMobStatPanel.SetActive(false);
             }
+            return actionAccepted;
         }
 
         public void WaitFor(IEnumerator action, System.Action onFinished)

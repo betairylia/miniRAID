@@ -223,6 +223,7 @@ namespace miniRAID
                 {
                     // If some cost cannot be satisfied
                     // Stop using the action
+                    Globals.combatMgr.Instance.ReportActionFailure("insufficient_cost");
                     yield break;
                 }
 
@@ -297,7 +298,10 @@ namespace miniRAID
         
         internal bool CheckIsActionPerformable(RuntimeAction action)
         {
-            return action.Valid && action.costBounds.Select(cost => CheckCost(cost.Item1, action)).All(x => x);
+            // CheckCost modifies costs for subsequent payment. UI queries must use copies.
+            // dNumber is a value struct, so this also copies its numeric composition.
+            return action.Valid && action.costBounds.Select(cost =>
+                CheckCost(new Cost(cost.Item1.value, cost.Item1.type), action)).All(x => x);
         }
         
         // Play an animation on MobRenderer instance and wait for complete.

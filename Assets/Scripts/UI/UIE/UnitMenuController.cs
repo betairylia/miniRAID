@@ -20,6 +20,7 @@ namespace miniRAID.UIElements
         private readonly miniRAID.UI.GridUI ui;
 
         private List<UIMenuEntry> currentEntries;
+        public IReadOnlyList<UIMenuEntry> Entries => currentEntries;
         private Dictionary<string, int> shortcutIndexMap;
         private int lastSelectedIndex = -1;
 
@@ -35,12 +36,14 @@ namespace miniRAID.UIElements
             public readonly string keycode;
             public readonly RuntimeAction runtimeAction;
             public readonly MobRenderer source;
+            public readonly bool gameplayAction;
 
             public UIMenuEntry(string text, IEnumerator action = null, IEnumerator onFinished = null,
                               bool useDefaultToolTip = false, string toolTip = "", 
                               System.Action onPointerEnter = null, System.Action onPointerLeave = null,
-                              string keycode = null, RuntimeAction runtimeAction = null, MobRenderer source = null)
+                              string keycode = null, RuntimeAction runtimeAction = null, MobRenderer source = null, bool gameplayAction = true)
             {
+                this.gameplayAction = gameplayAction;
                 this.text = text;
                 this.action = action;
                 this.onFinished = onFinished;
@@ -299,17 +302,18 @@ namespace miniRAID.UIElements
         //     }
         // }
 
-        private bool ExecuteSelectedAction()
+        private bool ExecuteSelectedAction() => TryExecuteEntry(listView.selectedIndex);
+
+        public bool TryExecuteEntry(int index)
         {
-            if (currentEntries == null || listView.selectedIndex < 0 || listView.selectedIndex >= currentEntries.Count)
+            if (!IsMenuShown || ui.isInAnimation || currentEntries == null || index < 0 || index >= currentEntries.Count)
                 return false;
 
-            var entry = currentEntries[listView.selectedIndex];
+            var entry = currentEntries[index];
             
             if (entry.IsPerformable && entry.action != null)
             {
-                ui.WaitFor(entry.action, entry.onFinished);
-                return true;
+                return ui.WaitFor(entry.action, entry.onFinished);
             }
             
             return false;

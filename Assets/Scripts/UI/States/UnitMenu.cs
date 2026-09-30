@@ -110,6 +110,7 @@ namespace miniRAID.UI
             
             entries.Add(new miniRAID.UIElements.UnitMenuController.UIMenuEntry(
                 text: "Cheat",
+                gameplayAction: false,
                 action: OnCheat(Consts.UnitGroup.Player),
                 onFinished: UIMenuPostAction(null),
                 useDefaultToolTip: true,
@@ -141,6 +142,7 @@ namespace miniRAID.UI
             {
                 entries.Add(new miniRAID.UIElements.UnitMenuController.UIMenuEntry(
                     text: "Return to Turn Start",
+                    gameplayAction: false,
                     action: ReturnToTurnStartAction(),
                     onFinished: UIMenuPostAction(null),
                     useDefaultToolTip: true,

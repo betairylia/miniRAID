@@ -35,7 +35,11 @@ namespace miniRAID.UI.TargetRequester
 
     [System.Serializable]
     public abstract class TargetRequesterUIState : UIState
-    { }
+    {
+        public bool IsAwaitingChoice { get; protected set; }
+        public abstract IEnumerable<Vector3Int> Choices { get; }
+        public abstract bool TrySubmitGrid(Vector3Int grid);
+    }
 
     /// <summary>
     /// 1 UIState start a request, given a mob;
@@ -106,6 +110,7 @@ namespace miniRAID.UI.TargetRequester
         /// <param name="mob"></param>
         public virtual void Request(MobData mob, RuntimeAction<T> ract, OnRequestFinish onFinish, System.Action onCancel)
         {
+            IsAwaitingChoice = true;
             this.mob = mob;
             this.ract = ract;
             currentStageCompleted = -1;
@@ -160,18 +165,19 @@ namespace miniRAID.UI.TargetRequester
 
         public virtual bool IsChoiceValid(Vector3Int coord)
         {
-            return currentQuery.map.ContainsKey(coord);
+            return currentQuery != null && currentQuery.map.ContainsKey(coord);
         }
 
-        public override void Submit(InputValue input)
+        public override IEnumerable<Vector3Int> Choices => currentQuery?.map.Keys ?? Enumerable.Empty<Vector3Int>();
+
+        public override bool TrySubmitGrid(Vector3Int grid)
         {
-            base.Submit(input);
-            var gridPos = ui.cursor.GridPos;
-            if(IsChoiceValid(gridPos))
-            {
-                _Next(gridPos);
-            }
+            if (!enabled || !IsAwaitingChoice || !IsChoiceValid(grid)) return false;
+            _Next(grid);
+            return true;
         }
+
+        public override void Submit(InputValue input) => TrySubmitGrid(ui.cursor.GridPos);
 
         public override void Cancel(InputValue input)
         {
@@ -181,6 +187,7 @@ namespace miniRAID.UI.TargetRequester
             }
             else
             {
+                IsAwaitingChoice = false;
                 SafeKillOverlay();
                 onCancel();
                 base.Cancel(input);
@@ -189,6 +196,7 @@ namespace miniRAID.UI.TargetRequester
 
         public virtual void Finish(T result)
         {
+            IsAwaitingChoice = false;
             SafeKillOverlay();
 
             onFinish?.Invoke(result);
