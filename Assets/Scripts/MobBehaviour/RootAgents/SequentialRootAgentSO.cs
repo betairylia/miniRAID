@@ -23,7 +23,7 @@ namespace miniRAID.TurnSchedule.RootAgent
     public class SequentialRootAgent : MobRootAgentBase
     {
         [SerializeField] private MobRootAgentBase[] rootAgents;
-        [SerializeField] private SequentialRootAgentSO seqData => (SequentialRootAgentSO)data;
+        private SequentialRootAgentSO seqData => (SequentialRootAgentSO)data;
 
         public SequentialRootAgent(MobData parent, MobRootAgentBaseSO data) : base(parent, data)
         {
