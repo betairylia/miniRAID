@@ -1,0 +1,264 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8e4a27bb63f4b3999d4413cf53d31e5, type: 3}
+  m_Name: SparkStaff
+  m_EditorClassIdentifier: 
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes:
+    - Name: power
+      Entry: 7
+      Data: 0|miniRAID.PowerGetter, miniRAID.Core
+    - Name: powerType
+      Entry: 3
+      Data: 1
+    - Name: powerFactor
+      Entry: 7
+      Data: miniRAID.LeveledStats`1[[System.Single, mscorlib]], miniRAID.Core
+    - Name: isLeveled
+      Entry: 5
+      Data: false
+    - Name: values
+      Entry: 7
+      Data: 1|System.Single[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 5
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: dynamicGetter
+      Entry: 6
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: auxPower
+      Entry: 7
+      Data: 2|miniRAID.PowerGetter, miniRAID.Core
+    - Name: powerType
+      Entry: 3
+      Data: 1
+    - Name: powerFactor
+      Entry: 7
+      Data: miniRAID.LeveledStats`1[[System.Single, mscorlib]], miniRAID.Core
+    - Name: isLeveled
+      Entry: 5
+      Data: false
+    - Name: values
+      Entry: 7
+      Data: 3|System.Single[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 5
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: dynamicGetter
+      Entry: 6
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: modifiers
+      Entry: 7
+      Data: 4|System.Collections.Generic.Dictionary`2[[miniRAID.StatModifierSO+StatModTarget,
+        miniRAID.Core],[miniRAID.StatModifierSO+dNumberModifier, miniRAID.Core]],
+        mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 5|System.Collections.Generic.EnumEqualityComparer`1[[miniRAID.StatModifierSO+StatModTarget,
+        miniRAID.Core]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 2
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 7
+    - Name: $v
+      Entry: 7
+      Data: miniRAID.StatModifierSO+dNumberModifier, miniRAID.Core
+    - Name: type
+      Entry: 3
+      Data: 0
+    - Name: aux
+      Entry: 5
+      Data: false
+    - Name: value
+      Entry: 7
+      Data: 6|miniRAID.ValueGetter`2[[miniRAID.MobData, miniRAID.Core],[System.Single,
+        mscorlib]], miniRAID.Core
+    - Name: type
+      Entry: 3
+      Data: 0
+    - Name: staticOut
+      Entry: 4
+      Data: 0.8
+    - Name: getterTemplate
+      Entry: 6
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 13
+    - Name: $v
+      Entry: 7
+      Data: miniRAID.StatModifierSO+dNumberModifier, miniRAID.Core
+    - Name: type
+      Entry: 3
+      Data: 0
+    - Name: aux
+      Entry: 5
+      Data: false
+    - Name: value
+      Entry: 7
+      Data: 7|miniRAID.ValueGetter`2[[miniRAID.MobData, miniRAID.Core],[System.Single,
+        mscorlib]], miniRAID.Core
+    - Name: type
+      Entry: 3
+      Data: 0
+    - Name: staticOut
+      Entry: 4
+      Data: 4
+    - Name: getterTemplate
+      Entry: 6
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+  Guid: a4eb0ddc851bf4a63ae38c76d21b27a9
+  Id: 117
+  icon: {fileID: 0}
+  nameKey:
+    m_TableReference:
+      m_TableCollectionName: Actions
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: alphawolf.lesson.staff
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  ToolTipKey:
+    m_TableReference:
+      m_TableCollectionName: Actions
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: alphawolf.lesson.staff-description
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  type: 1
+  priority: 0
+  itemLevel: 10
+  levelRequirement: 8
+  baseStatsRequirements:
+    VIT: 0
+    STR: 0
+    MAG: 1
+    INT: 1.5
+    AGI: 0
+    TEC: 0
+  wpType: 5
+  regularAttack:
+    data: {fileID: 11400000, guid: ba90d3693bcd94ed880375d6fa1f9fff, type: 2}
+    level: 0
+  mainElement: 4
+  specialAttack:
+    data: {fileID: 11400000, guid: 55022668c205f4e6489cd7f29528d113, type: 2}
+    level: 0
+  regenTime: 2
+  references:
+    version: 2
+    RefIds: []

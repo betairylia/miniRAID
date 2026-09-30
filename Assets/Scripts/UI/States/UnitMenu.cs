@@ -138,7 +138,7 @@ namespace miniRAID.UI
             ));
             
             // Add "Return to Turn Start" option if there's a saved backup state
-            if (SaveDataSerializer.saveSlotBackup != null)
+            if (SaveDataSerializer.saveSlotBackup != null && Globals.combatMgr.Instance.SupportsRewind)
             {
                 entries.Add(new miniRAID.UIElements.UnitMenuController.UIMenuEntry(
                     text: "Return to Turn Start",
@@ -162,7 +162,7 @@ namespace miniRAID.UI
 
         private IEnumerator ReturnToTurnStartAction()
         {
-            if (SaveDataSerializer.saveSlotBackup != null)
+            if (SaveDataSerializer.saveSlotBackup != null && Globals.combatMgr.Instance.SupportsRewind)
             {
                 SaveDataSerializer.BeginDeserializeEverything(SaveDataSerializer.saveSlotBackup);
                 Globals.logger?.Log($"[UnitMenu] Restored to turn start using saveSlotBackup");

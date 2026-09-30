@@ -519,6 +519,50 @@ MonoBehaviour:
     m_Key: fighter.combo.tooltip
     m_Metadata:
       m_Items: []
+  - m_Id: 421831564766208000
+    m_Key: alphawolf.lesson.firebolt
+    m_Metadata:
+      m_Items: []
+  - m_Id: 421831565030449152
+    m_Key: alphawolf.lesson.fireblast
+    m_Metadata:
+      m_Items: []
+  - m_Id: 421831565529571328
+    m_Key: alphawolf.lesson.bite
+    m_Metadata:
+      m_Items: []
+  - m_Id: 421831565764452352
+    m_Key: alphawolf.lesson.sweep
+    m_Metadata:
+      m_Items: []
+  - m_Id: 421831566016110592
+    m_Key: alphawolf.lesson.charge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 421831566250991616
+    m_Key: alphawolf.lesson.roar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 421831566494261248
+    m_Key: alphawolf.lesson.pillar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 421837832121737216
+    m_Key: alphawolf.lesson.staff
+    m_Metadata:
+      m_Items: []
+  - m_Id: 421837832134320128
+    m_Key: alphawolf.lesson.staff-description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 421837832134320129
+    m_Key: alphawolf.lesson.bolt-description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 421837832134320130
+    m_Key: alphawolf.lesson.blast-description
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

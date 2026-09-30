@@ -1,0 +1,126 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec7bd0369532437e95c679dfe882de1c, type: 3}
+  m_Name: LessonGuardian
+  m_EditorClassIdentifier: 
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes:
+    - Name: gridBody
+      Entry: 7
+      Data: 0|miniRAID.PointCollider, miniRAID.Core
+    - Name: _position
+      Entry: 7
+      Data: UnityEngine.Vector3, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0
+    - Name: 
+      Entry: 4
+      Data: 0
+    - Name: 
+      Entry: 4
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: _direction
+      Entry: 3
+      Data: 0
+    - Name: guid
+      Entry: 2
+      Data: 00000000000000000000000000000000
+    - Name: shape
+      Entry: 7
+      Data: 1|miniRAID.GridShape, miniRAID.Core
+    - Name: shape
+      Entry: 7
+      Data: 2|System.Collections.Generic.HashSet`1[[UnityEngine.Vector3Int, UnityEngine.CoreModule]],
+        System.Core
+    - Name: 
+      Entry: 12
+      Data: 1
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector3Int, UnityEngine.CoreModule
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: canvasSize
+      Entry: 3
+      Data: 2
+    - Name: editorMode
+      Entry: 3
+      Data: 0
+    - Name: editorMinY
+      Entry: 3
+      Data: 0
+    - Name: editorMaxY
+      Entry: 3
+      Data: 0
+    - Name: editorCurrentLevel
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+  Guid: 2e4da8ce47a899d428655862803a3993
+  Id: 88
+  icon: {fileID: 0}
+  nickname: Guardian
+  race: {fileID: 11400000, guid: e462fa2b554686946b62120d4223b80d, type: 2}
+  job: {fileID: 11400000, guid: d3e2910f0b767ae4e83683128b7c18aa, type: 2}
+  color: {r: 0.56037736, g: 0.8431818, b: 1, a: 1}
+  level: 5
+  rendererPrefab: {fileID: 0}
+  movement: {fileID: 11400000, guid: c917e07e12994f44e85a9c8c5e79c31a, type: 2}
+  movable: 1
+  moveRange: 4
+  mainWeaponSO: {fileID: 11400000, guid: fa220c9517111e546971b48941d5d41a, type: 2}
+  subWeaponSO: {fileID: 11400000, guid: a850cd71b4d58524cb37a5e639b5adb9, type: 2}
+  listenerSOs:
+  - {fileID: 11400000, guid: 3d81a9427e5722e44a2a27b96379ef06, type: 2}
+  - {fileID: 11400000, guid: 869ff8d9c45faae4fa38285d22cefa0b, type: 2}
+  actionSOs: []
+  rootAgent: {fileID: 0}
+  baseStats:
+    VIT: 11
+    STR: 13
+    MAG: 6
+    INT: 7
+    AGI: 9
+    TEC: 10
+  healPriority: 1.3

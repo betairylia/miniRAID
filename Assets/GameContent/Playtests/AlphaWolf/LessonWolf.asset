@@ -1,0 +1,137 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2d1d0c1d293c45fba23cc65d551d17bd, type: 3}
+  m_Name: LessonWolf
+  m_EditorClassIdentifier: miniRAID.Core::miniRAID.EnemyMobDescriptorSO
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes:
+    - Name: gridBody
+      Entry: 7
+      Data: 0|miniRAID.PointCollider, miniRAID.Core
+    - Name: _position
+      Entry: 7
+      Data: UnityEngine.Vector3, UnityEngine.CoreModule
+    - Name: 
+      Entry: 4
+      Data: 0
+    - Name: 
+      Entry: 4
+      Data: 0
+    - Name: 
+      Entry: 4
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: _direction
+      Entry: 3
+      Data: 0
+    - Name: guid
+      Entry: 2
+      Data: b01939251e64401685c3389d347d3a94
+    - Name: shape
+      Entry: 7
+      Data: 1|miniRAID.GridShape, miniRAID.Core
+    - Name: shape
+      Entry: 7
+      Data: 2|System.Collections.Generic.HashSet`1[[UnityEngine.Vector3Int, UnityEngine.CoreModule]],
+        System.Core
+    - Name: 
+      Entry: 12
+      Data: 1
+    - Name: 
+      Entry: 7
+      Data: UnityEngine.Vector3Int, UnityEngine.CoreModule
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: canvasSize
+      Entry: 3
+      Data: 0
+    - Name: editorMode
+      Entry: 3
+      Data: 0
+    - Name: editorMinY
+      Entry: 3
+      Data: 0
+    - Name: editorMaxY
+      Entry: 3
+      Data: 0
+    - Name: editorCurrentLevel
+      Entry: 3
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: baseEnemyStats
+      Entry: 7
+      Data: miniRAID.EnemyMobDescriptorSO+EnemyStatBase, miniRAID.Core
+    - Name: MaxHP
+      Entry: 3
+      Data: 480
+    - Name: ExHitAcc
+      Entry: 4
+      Data: 0
+    - Name: ExCrit
+      Entry: 4
+      Data: 0
+    - Name: ExDodge
+      Entry: 4
+      Data: 0
+    - Name: ExAntiCrit
+      Entry: 4
+      Data: 0
+    - Name: 
+      Entry: 8
+      Data: 
+  Guid: c990e6bdb1f1444ccaebf3e7bea3f51f
+  Id: 239
+  icon: {fileID: 0}
+  nickname: 
+  race: {fileID: 0}
+  job: {fileID: 0}
+  color: {r: 0, g: 0, b: 0, a: 0}
+  level: 5
+  rendererPrefab: {fileID: 0}
+  movement: {fileID: 11400000, guid: c917e07e12994f44e85a9c8c5e79c31a, type: 2}
+  movable: 1
+  moveRange: 3
+  mainWeaponSO: {fileID: 0}
+  subWeaponSO: {fileID: 0}
+  listenerSOs: []
+  actionSOs: []
+  rootAgent: {fileID: 0}

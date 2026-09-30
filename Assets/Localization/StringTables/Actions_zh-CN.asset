@@ -543,6 +543,52 @@ MonoBehaviour:
     m_Localized: "\u6218\u58EB\u8FDE\u51FB"
     m_Metadata:
       m_Items: []
+  - m_Id: 421831564766208000
+    m_Localized: Fire Bolt
+    m_Metadata:
+      m_Items: []
+  - m_Id: 421831565030449152
+    m_Localized: Fire Blast
+    m_Metadata:
+      m_Items: []
+  - m_Id: 421831565529571328
+    m_Localized: Wolf Bite
+    m_Metadata:
+      m_Items: []
+  - m_Id: 421831565764452352
+    m_Localized: Wolf Sweep
+    m_Metadata:
+      m_Items: []
+  - m_Id: 421831566016110592
+    m_Localized: Wolf Charge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 421831566250991616
+    m_Localized: Wolf Roar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 421831566494261248
+    m_Localized: Shatter Pillar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 421837832121737216
+    m_Localized: Spark Staff
+    m_Metadata:
+      m_Items: []
+  - m_Id: 421837832134320128
+    m_Localized: 'Tutorial fire staff. Fire Blast causes resonance: both staff attacks
+      become unavailable until two recovery stages have passed.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 421837832134320129
+    m_Localized: Deals {HitPower} Fire damage to one legal target.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 421837832134320130
+    m_Localized: 'Deals {HitPower} Fire damage to one legal target. Resonance: this
+      staff becomes unavailable until two recovery stages have passed.'
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

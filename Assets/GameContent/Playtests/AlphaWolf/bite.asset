@@ -1,0 +1,199 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0813ddaac676f417bbc9b3658c0a3eb4, type: 3}
+  m_Name: bite
+  m_EditorClassIdentifier: miniRAID.Core::miniRAID.AlphaWolfPlaytest.AlphaWolfLessonAction
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes:
+    - Name: isActivelyUsed
+      Entry: 7
+      Data: 0|miniRAID.ValueGetter`2[[miniRAID.MobData, miniRAID.Core],[System.Boolean,
+        mscorlib]], miniRAID.Core
+    - Name: type
+      Entry: 3
+      Data: 0
+    - Name: staticOut
+      Entry: 5
+      Data: true
+    - Name: getterTemplate
+      Entry: 6
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: power
+      Entry: 7
+      Data: 1|miniRAID.PowerGetter, miniRAID.Core
+    - Name: powerType
+      Entry: 3
+      Data: 1
+    - Name: powerFactor
+      Entry: 7
+      Data: miniRAID.LeveledStats`1[[System.Single, mscorlib]], miniRAID.Core
+    - Name: isLeveled
+      Entry: 5
+      Data: false
+    - Name: values
+      Entry: 7
+      Data: 2|System.Single[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 5
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: dynamicGetter
+      Entry: 6
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: auxPower
+      Entry: 7
+      Data: 3|miniRAID.PowerGetter, miniRAID.Core
+    - Name: powerType
+      Entry: 3
+      Data: 1
+    - Name: powerFactor
+      Entry: 7
+      Data: miniRAID.LeveledStats`1[[System.Single, mscorlib]], miniRAID.Core
+    - Name: isLeveled
+      Entry: 5
+      Data: false
+    - Name: values
+      Entry: 7
+      Data: 4|System.Single[], mscorlib
+    - Name: 
+      Entry: 14
+      Data: 5
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 4
+      Data: 1
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: dynamicGetter
+      Entry: 6
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: costs
+      Entry: 7
+      Data: 5|System.Collections.Generic.Dictionary`2[[miniRAID.Cost+Type, miniRAID.Core],[miniRAID.ValueBoundedGetter`3[[System.ValueTuple`2[[miniRAID.MobData,
+        miniRAID.Core],[miniRAID.Spells.SingleMobTarget, miniRAID.Core]], mscorlib],[miniRAID.MobData,
+        miniRAID.Core],[System.Double, mscorlib]], miniRAID.Core]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 6|System.Collections.Generic.EnumEqualityComparer`1[[miniRAID.Cost+Type,
+        miniRAID.Core]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: RequestValidator
+      Entry: 6
+      Data: 
+    - Name: targetPicker
+      Entry: 6
+      Data: 
+    - Name: _
+      Entry: 6
+      Data: 
+  Guid: 0eaf7b06e14ca4f1f818bdd9b751a9c2
+  Id: 0
+  icon: {fileID: 0}
+  ActionNameKey:
+    m_TableReference:
+      m_TableCollectionName: Actions
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: alphawolf.lesson.bite
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  maxLevel: 0
+  DescriptionKey:
+    m_TableReference:
+      m_TableCollectionName: 
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  flags: 0
+  amount: 12
+  element: 0
+  references:
+    version: 2
+    RefIds: []

@@ -30,6 +30,10 @@ namespace miniRAID
         public Timestamp now, appendedTurns;
 
         SerialCoroutine sc;
+        ICombatCompletion completion;
+        public bool CombatFinished => completion?.Finished ?? false;
+        public bool CombatStopped { get; private set; }
+        public bool SupportsRewind => completion == null;
         [OdinSerialize] private TurnSlice currentTurnSlice;
 
         [NonSerialized] public IEnumerator OnBeforeNextTurnSlice;
@@ -39,6 +43,7 @@ namespace miniRAID
         private void Awake()
         {
             sc = GetComponent<SerialCoroutine>();
+            completion = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<ICombatCompletion>().FirstOrDefault();
         }
 
         private void Start()
@@ -124,6 +129,7 @@ namespace miniRAID
 
                 KeepTurnScheduleLength();
             }
+            CombatStopped = true;
         }
 
         // TODO: Move me to another place specific for UI
@@ -174,7 +180,7 @@ namespace miniRAID
 
         private bool IsCombatFinished()
         {
-            return false;
+            return CombatFinished;
         }
 
         private IEnumerator Preparation()

@@ -5,7 +5,9 @@
         "GUID:fd21e316f1551c34a9893dc901776446",
         "GUID:9e24947de15b9834991c9d8411ea37cf",
         "GUID:84651a3751eca9349aac36a66bba901b",
-        "Unity.InputSystem"
+        "Unity.InputSystem",
+        "Unity.Localization",
+        "Unity.Localization.Editor"
     ],
     "includePlatforms": [
         "Editor"

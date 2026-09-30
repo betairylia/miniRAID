@@ -39,6 +39,7 @@ namespace miniRAID.EditorTools
         {
             EditorApplication.update += Tick;
             EditorApplication.playModeStateChanged += _ => Reset();
+            UnityEngine.SceneManagement.SceneManager.sceneLoaded += (_, __) => Reset();
             Application.logMessageReceived += (_, trace, type) =>
             {
                 if (active != null && type == LogType.Exception) fault = trace;
@@ -56,6 +57,7 @@ namespace miniRAID.EditorTools
             {
                 if (!Live) return "not_ready";
                 if (fault != null) return "faulted";
+                if (Scheduler.CombatStopped && !Scheduler.ActionPending && !UI.isInAnimation) return "finished";
                 if (!Scheduler.WaitingForPlayer) return "resolving";
                 if (UI.currentState is TargetRequesterUIState t && t.IsAwaitingChoice) return "await_target";
                 if (Scheduler.ActionPending || UI.isInAnimation) return "resolving";
@@ -107,7 +109,7 @@ namespace miniRAID.EditorTools
             if (fault != null) { Finish("faulted", "game_exception"); return; }
             if (Time.frameCount <= active.frame + 1) return;
             var phase = Phase;
-            if (phase == "await_command" || (phase == "await_target" &&
+            if (phase == "finished" || phase == "await_command" || (phase == "await_target" &&
                 (active.verb == "menu" || TargetSignature() != active.initialTarget)))
                 {
                 var receipt = active.receipt;

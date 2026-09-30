@@ -705,6 +705,8 @@ namespace miniRAID
     public partial class Databackend
     {
         static private Databackend instance;
+        // Called by an isolated encounter before its scene units initialize.
+        public static void ResetForNewCombat() { instance = new Databackend(); }
         static public Databackend GetSingleton()
         {
             if (instance == null)

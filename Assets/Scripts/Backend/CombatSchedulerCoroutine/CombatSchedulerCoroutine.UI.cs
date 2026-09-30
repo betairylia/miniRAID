@@ -76,7 +76,7 @@ namespace miniRAID
 
             // bool shouldEnd = false;
 
-            while(!playerPhaseEnd)
+            while(!playerPhaseEnd && !CombatFinished)
             {
                 if(actionToDo == null) { yield return null; }
                 else
@@ -87,6 +87,7 @@ namespace miniRAID
             }
 
             WaitingForPlayer = false;
+            if (CombatFinished) turnEnd = true;
             playerPhaseEnd = false;
         }
 

@@ -17,6 +17,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/OpenTest/AlphaWolf.unity
     guid: 058f3203bb47df54a94ccfca1538bac5
+  - enabled: 1
+    path: Assets/Scenes/OpenTest/AlphaWolfPlaytest.unity
+    guid: cfb3d5ae223854cdeb1a4db41a7a1fcb
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: ea174cb71605a904b8eabb90e6109e65, type: 2}
     com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}
