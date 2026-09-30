@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UIElements;
 using miniRAID.UI;
 using miniRAID.UI.TargetRequester;
 
@@ -18,10 +19,12 @@ namespace miniRAID.EditorTools
         {
             public string id, payload, status = "pending", reason;
             public double deadline;
+            public bool effects;
             public int frame;
             public string verb, initialTarget;
             public object result;
             public JToken before;
+            public CombatSchedulerCoroutine.PlayerActionReceipt receipt;
         }
         static readonly Dictionary<string, Operation> operations = new();
         static readonly Queue<string> history = new();
@@ -84,9 +87,10 @@ namespace miniRAID.EditorTools
                     id=m.guid.ToString("N"), name=m.nickname, team=m.unitGroup.ToString(),
                     pos=new[]{m.Position.x,m.Position.y,m.Position.z}, grid=Grid(m.GridPosition),
                     hp=new[]{m.health,m.maxHealth}, ap=m.actionPoints, move=m.MoveRangeLeft,
+                    mana=Mana(m), buffs=Buffs(m),
                     active=m.isControllable, dead=m.isDead }).ToArray(),
                 menu=entries, target = choices == null ? null : new { kind=target.GetType().Name, count=choices.Length, choices=choices.Take(64).ToArray(), more=choices.Length>64 },
-                failure=scheduler.ActionFailure
+                failure=scheduler.LastPlayerAction?.failure
             };
         }
         static object Observe()
@@ -106,17 +110,21 @@ namespace miniRAID.EditorTools
             if (phase == "await_command" || (phase == "await_target" &&
                 (active.verb == "menu" || TargetSignature() != active.initialTarget)))
                 {
-                var reason=(active.verb == "menu" || active.verb == "target") ? Scheduler.ActionFailure : null;
-                Finish(reason == null ? "succeeded" : "rejected", reason);
+                var receipt = active.receipt;
+                var reason=(active.verb == "menu" || active.verb == "target") ? receipt?.failure : null;
+                Finish(reason == null ? "succeeded" : receipt.Outcome, reason);
             }
         }
         static void Finish(string status, string reason)
         {
-            active.status=status; active.reason=reason; active.result=Observe(); active=null;
+            active.status=status; active.reason=reason; active.effects=Effects(active); active.result=Observe(); active=null;
         }
+        static bool Effects(Operation op) => op.receipt != null &&
+            (op.receipt.effectsStarted || (op.receipt.completed && op.receipt.failure == null));
         static object Result(Operation op) => new {
             id=op.id, status=op.status == "pending" && EditorApplication.timeSinceStartup >= op.deadline ? "timed_out" : op.status,
             pending=op.status == "pending", accepted=true, reason=op.reason,
+            effectsMayHaveOccurred=op.status == "pending" ? Effects(op) : op.effects,
             result=op.result, fault=fault == null ? null : fault.Split('\n').FirstOrDefault()
         };
         static object Reject(string reason) => new { status="rejected", accepted=false, reason, observation=Observe() };
@@ -158,7 +166,7 @@ namespace miniRAID.EditorTools
                     {
                         var old=previous.FirstOrDefault(u=>(string)u["id"]==(string)unit["id"]);
                         var delta=Pick(unit,"id","name");
-                        foreach(var key in new[]{"team","grid","hp","ap","move","active","dead"})
+                        foreach(var key in new[]{"team","grid","hp","ap","move","active","dead","mana","buffs"})
                             if(old == null || !JToken.DeepEquals(unit[key],old[key])) delta[key]=unit[key].DeepClone();
                         if(delta.Count>2) changes.Add(delta);
                     }
@@ -166,7 +174,7 @@ namespace miniRAID.EditorTools
                     var removed=previous.Where(u=>!units.Any(n=>(string)n["id"]==(string)u["id"])).Select(u=>(string)u["id"]).ToArray();
                     if(removed.Length>0) output["unitsRemoved"]=JArray.FromObject(removed);
                 }
-                else output["units"]=new JArray(units.Select(u=>Pick(u,"id","name","team","grid","hp","ap","move","active","dead")));
+                else output["units"]=new JArray(units.Select(u=>Pick(u,"id","name","team","grid","hp","ap","move","active","dead","mana")));
             }
             if(state["menu"] is JArray menu)
                 output["menu"]=new JArray(menu.Select(e=> {
@@ -201,6 +209,50 @@ namespace miniRAID.EditorTools
                     if(obj[key]?.Type==JTokenType.Null) obj.Remove(key);
             return output;
         }
+        static int[] Mana(MobData mob)
+        {
+            var mana=mob.FindListener<GeneralManaListener>();
+            return mana == null ? null : new[]{mana.current,mana.max};
+        }
+        static string[] Buffs(MobData mob) => mob.listeners
+            .Where(f=>f.type is MobListenerSO.ListenerType.Buff or MobListenerSO.ListenerType.Passive)
+            .Select(f=>f is Buff.Buff b ? b.detailedName : f.name).ToArray();
+        static string VisibleIncoming()
+        {
+            var label=UI.combatView.GetComponent<UIDocument>()?.rootVisualElement.Q("BossStats")?.Q<Label>("Incoming");
+            for (VisualElement node=label; node!=null; node=node.parent)
+                if(node.resolvedStyle.display==DisplayStyle.None || node.resolvedStyle.visibility==Visibility.Hidden) return "unknown: panel hidden";
+            return label?.text ?? "unknown: no displayed incoming text";
+        }
+        static string UnitAt(Vector3Int grid)
+        {
+            var point=new PointCollider { Position=new Vector3(grid.x,grid.y,grid.z) };
+            return Globals.backend.allMobs.FirstOrDefault(m=>point.Overlaps(m.Collider))?.guid.ToString("N");
+        }
+        // Explicit, read-only tactical detail. No AI plan queries or simulated future state.
+        static object Tactical(JObject request)
+        {
+            Observe();
+            if (!Live) return new { session, version, phase="not_ready" };
+            var selected=(string)request["unit"];
+            var units=Globals.backend.allMobs.Where(m=>selected == null || m.guid.ToString("N")==selected)
+                .OrderBy(m=>m.guid).Select(m=> {
+                    return new { id=m.guid.ToString("N"), name=m.nickname, mana=Mana(m), buffs=Buffs(m) };
+                }).ToArray();
+            // These are current rendered overlays, not inferred hazard rules or hidden AI intentions.
+            var cells=UnityEngine.Object.FindObjectsByType<GridOverlay>(FindObjectsSortMode.None)
+                .Where(o=>o.isActiveAndEnabled && o.GetComponentsInChildren<SpriteRenderer>()
+                    .Any(renderer=>renderer.enabled && renderer.gameObject.activeInHierarchy))
+                .SelectMany(o=>o.overlay.Select(c=>new { grid=Grid(Databackend.BackendToGridPos(c.Key)),kind=c.Value.ToString() }))
+                .OrderBy(c=>c.grid[0]).ThenBy(c=>c.grid[1]).ThenBy(c=>c.grid[2]).ThenBy(c=>c.kind).ToArray();
+            int offset=Math.Max(0,(int?)request["offset"] ?? 0),limit=Math.Clamp((int?)request["limit"] ?? 32,1,128);
+            return new { session, version, units, hazards="unknown: no authoritative UI hazard classification",
+                overlays=new { count=cells.Length, offset, cells=cells.Skip(offset).Take(limit).ToArray() },
+                telegraphs=Scheduler.turnSchedule?.Where(t=>t.ShowInUI).Take(8)
+                    .Select(t=>new { label=t.Label, turn=t.metadata.timestamp.currentTurnID }).ToArray(),
+                incomingText=VisibleIncoming(), prediction="unknown beyond displayed queue, incoming text and overlays" };
+        }
+
         static string Validate(JObject r)
         {
             bool Text(string key) => r[key]?.Type == JTokenType.String;
@@ -227,15 +279,21 @@ namespace miniRAID.EditorTools
             Tick();
             var verb=(string)r["op"];
             if (verb == "observe") return Observe();
-            if (verb == "options")
+            if (verb == "tactical") return Tactical(r);
+            if (verb == "options" || verb == "options_detail")
             {
                 Observe();
                 var target=UI?.currentState as TargetRequesterUIState;
                 var offset=Math.Max(0,(int?)r["offset"] ?? 0);
-                var limit=Math.Max(1,Math.Min(128,(int?)r["limit"] ?? 64));
+                var limit=Math.Max(1,Math.Min(128,(int?)r["limit"] ?? (verb == "options_detail" ? 16 : 64)));
                 var choices=target != null && target.IsAwaitingChoice
                     ? target.Choices.OrderBy(p=>p.x).ThenBy(p=>p.y).ThenBy(p=>p.z).ToArray() : Array.Empty<Vector3Int>();
-                return new { session, version, count=choices.Length, offset, choices=choices.Skip(offset).Take(limit).Select(Grid).ToArray() };
+                var page=choices.Skip(offset).Take(limit).ToArray();
+                if ((string)r["op"] == "options_detail")
+                    return new { session, version, count=choices.Length, offset, movementRules=(target as MovementRequestValidator)?.PreviewRules(), choices=page.Select(p=>new {
+                        grid=Grid(p), unit=UnitAt(p),
+                        movement=(target as MovementRequestValidator)?.PreviewCost(p) }).ToArray() };
+                return new { session, version, count=choices.Length, offset, choices=page.Select(Grid).ToArray() };
             }
             if (verb == "result") return operations.TryGetValue((string)r["id"] ?? "",out var found) ? Result(found) : Reject("unknown_request");
             var id=(string)r["id"];
@@ -281,7 +339,7 @@ namespace miniRAID.EditorTools
             else if (verb == "cancel" && (Phase == "await_target" || Phase == "await_command"))
             { ui.currentState.Cancel(null); accepted=true; }
             if(!accepted) return Reject("not_allowed");
-            var operation=new Operation { id=id,payload=payload,frame=Time.frameCount,verb=verb,initialTarget=initial,before=before,
+            var operation=new Operation { id=id,payload=payload,receipt=(verb == "menu" || verb == "target") ? Scheduler.LastPlayerAction : null,frame=Time.frameCount,verb=verb,initialTarget=initial,before=before,
                 deadline=EditorApplication.timeSinceStartup + Math.Max(0,Math.Min(60000,(int?)r["timeoutMs"] ?? 10000))/1000.0 };
             operations.Add(id,operation);history.Enqueue(id);
             while(history.Count>256) operations.Remove(history.Dequeue());

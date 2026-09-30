@@ -39,7 +39,34 @@ namespace miniRAID
         public bool WaitingForPlayer { get; private set; }
         public bool ActionPending => actionToDo != null;
         public string ActionFailure { get; private set; }
-        public void ReportActionFailure(string reason) => ActionFailure = reason;
+        // A receipt belongs to one UI submission, including its target request, never to later AI turns.
+        public sealed class PlayerActionReceipt
+        {
+            public string failure;
+            public bool completed, effectsStarted;
+            public string Outcome => failure == null ? "succeeded" : effectsStarted ? "partial_failure" : "rejected";
+            internal MobData source;
+            internal RuntimeAction action;
+        }
+        public PlayerActionReceipt LastPlayerAction { get; private set; }
+        PlayerActionReceipt executingPlayerAction;
+        public void BindPlayerAction(MobData source, RuntimeAction action)
+        {
+            if (executingPlayerAction == null) return;
+            executingPlayerAction.source = source;
+            executingPlayerAction.action = action;
+        }
+        bool IsSubmittedAction(MobData source, RuntimeAction action) => executingPlayerAction != null &&
+            source != null && executingPlayerAction.source == source && executingPlayerAction.action == action;
+        public void ReportActionEffects(MobData source, RuntimeAction action)
+        {
+            if (IsSubmittedAction(source, action)) executingPlayerAction.effectsStarted = true;
+        }
+        public void ReportActionFailure(string reason, MobData source = null, RuntimeAction action = null)
+        {
+            ActionFailure = reason; // Legacy diagnostic only; not a player command result.
+            if (IsSubmittedAction(source, action)) executingPlayerAction.failure ??= reason;
+        }
 
         public IEnumerator UIWaitPlayerInput()
         {
@@ -72,9 +99,14 @@ namespace miniRAID
                 return false;
             }
 
+            var receipt = new PlayerActionReceipt();
+            LastPlayerAction = receipt;
             IEnumerator OnFinishWrapper()
             {
+                executingPlayerAction = receipt;
                 yield return new JumpIn(action);
+                receipt.completed = true;
+                executingPlayerAction = null;
 
                 // Maybe some fading animation?
                 yield return new JumpIn(onActionFinished);

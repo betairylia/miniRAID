@@ -223,12 +223,13 @@ namespace miniRAID
                 {
                     // If some cost cannot be satisfied
                     // Stop using the action
-                    Globals.combatMgr.Instance.ReportActionFailure("insufficient_cost");
+                    Globals.combatMgr.Instance.ReportActionFailure("insufficient_cost", this, raction);
                     yield break;
                 }
 
                 foreach (Cost cost in costs)
                 {
+                    Globals.combatMgr.Instance.ReportActionEffects(this, raction);
                     yield return new JumpIn(ApplyCost(cost, raction));
                 }
             }

@@ -24,7 +24,7 @@ def unity(command, *args):
 def call(request):
     literal = json.dumps(json.dumps(request, ensure_ascii=False), ensure_ascii=False)
     # Only read requests are retried across Unity domain reloads. Never resubmit gameplay mutations.
-    attempts = 15 if request.get('op') in ('observe', 'options', 'result') else 1
+    attempts = 15 if request.get('op') in ('observe', 'options', 'options_detail', 'tactical', 'result') else 1
     for attempt in range(attempts):
         try:
             result = unity('eval', 'return miniRAID.EditorTools.GameplayHarness.Call(' + literal + ');')

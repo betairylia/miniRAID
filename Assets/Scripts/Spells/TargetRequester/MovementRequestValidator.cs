@@ -56,6 +56,32 @@ namespace miniRAID.UI.TargetRequester
             return stage;
         }
 
+        // Read the exact cached player BFS path; never rerun the requester or mutate costs.
+        public object PreviewCost(Vector3Int grid)
+        {
+            if (!IsAwaitingChoice || gridInfo == null || !Choices.Contains(grid)) return null;
+            var movement = (Movement)ract;
+            var path = Databackend.ReconstructPath(x => gridInfo[x].prevGrid, grid);
+            float moved = mob.movedGrids, ap = 0, distance = 0;
+            var previous = mob.GridPosition;
+            foreach (var step in path.path)
+            {
+                var d = movement.ComputeDistance(previous, step);
+                distance += d;
+                if (!movement.movementData.ignoreCostByDistance)
+                {
+                    ap += Mathf.Floor(Mathf.Max(0, d - (mob.actedThisTurn ? 0 : mob.MoveRange - moved)) * 100) / 100;
+                    if (!mob.actedThisTurn) moved = Mathf.Min(mob.MoveRange, moved + d);
+                }
+                previous = step;
+            }
+            return new { distance, movementAP = ap, moveRemaining = mob.MoveRange - moved };
+        }
+
+        public object PreviewRules() => new {
+            actionCostBounds = ract.costBounds.Select(c=>new { resource=c.Item1.type.ToString(), min=c.Item1.value.Value, max=c.Item2.value.Value }).ToArray(),
+            basis = "cached_ui_path", excludes = "dynamic effects; base costs listed separately" };
+
         void Decided()
         {
             // Reconstruct path

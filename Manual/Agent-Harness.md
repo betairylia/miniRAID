@@ -111,3 +111,25 @@ python3 Tools/test_gameplay_harness.py --run --output /tmp/miniraid-harness-test
 当前完成判定对多阶段 requester 比较类型与合法格子集合；未来若引入连续两阶段集合完全相同的 requester，需要补充阶段标识。现有实测方向、移动和单体技能没有触发此限制。费用查询只隔离 Cost/dNumber；未来自定义查询回调仍须遵守只读约定。
 
 2026-09-30 后续在项目外隔离 venv 安装 tiktoken 0.14.0，用 `o200k_base` 对上述同份紧凑 JSON 文本补算：初始 observe full/compact 为383/234 tokens，Move 完成为759/284，Slash 完成为760/310，64项目标页为422，7步 sequence 输出为399。此前 bytes 范围只是粗估（例如目标页粗估偏低）；这些是指定 encoding 的精确文本计数，不代表未知当前模型的计费，也未包含工具包装/隐藏提示。venv 与 encoding 缓存均在项目外，不是项目依赖。
+
+## Slime King 实战后修复：按需战术信息与失败归属
+
+`observe` 的单位增加 mana（无对应资源时 null）。完成响应仍只返回变化单位，mana / buffs 变化也参与版本判断并返回增量；显式 tactical 才展开所有 Buff 与可见覆盖格。
+
+```sh
+python3 Tools/gameplay_harness.py '{"op":"tactical","unit":"<可选单位ID>","offset":0,"limit":32}'
+python3 Tools/gameplay_harness.py '{"op":"options_detail","offset":0,"limit":16}'
+```
+
+`tactical`：读取与 UnitBar 相同的 mana/current/max 和 Buff detailedName，以及现有可见队列、Boss 面板已显示的 incomingText、正在绘制的 GridOverlay。覆盖格分页上限128；不是所有覆盖格都是危险区。没有通用权威危险区分类，也不查询隐藏 AI 计划，因此 hazards 和超出可见队列的预测明确 unknown。unit 只过滤单位详情，不过滤战场覆盖格。未实现隐藏资源推断。
+
+`options_detail` 默认16格，共同费用说明只返回一次；沿用当前 requester 的合法格子页，每项包含 grid、该格碰撞到的 unit（空格 null；方向选择时不代表最终受击者）以及 movement 预览（非移动 null）。movementAP、moveRemaining 来自同一缓存 BFS 路径、逐步距离与实际 AP 向下取整规则；页级 movementRules.actionCostBounds 是 UI 已有基础费用界限，单独列出，不把它混作移动距离费用。动态触发效果不能提前保证，返回 excludes 明示这一点。旧 options 格子数组格式保持不变。
+
+每个 UI 提交持有自己的动作收据，目标提交沿用同一次 UI 动作。只有匹配该玩家与 RuntimeAction 且处在 action 主体执行期间的失败属于它；onFinished/AutoPass/后续敌方行动不污染收据。完成仍等待最终玩家决策点。
+
+- 执行前费用/冷却等失败：accepted=true、rejected、effectsMayHaveOccurred=false。
+- 已应用费用或开始效果后失败：partial_failure、effectsMayHaveOccurred=true；不承诺回滚，不自动重试。
+- 敌方后续失败：不把已经完成的玩家动作改成 rejected；原游戏日志继续保留诊断。
+- pending/timeout/fault 语义不变。已完成结果的效果标记冻结，后续目标操作不会改变此前菜单请求的历史结果。
+
+定向验收脚本 `Tools/test_gameplay_tactical.py --run --output /tmp/tactical-tests.json` 会重启 Play，验证 AlphaWolf 移动费用、只读查询、实体映射、真实运行时 AP 不足，以及 SlimeKing 资源与实际 EndTurn。包含明确标注的临时失败注入夹具：归属/部分失败检查不是自然发生的战斗证据。测试退出 Play 清理，不保存场景或修改游戏资产。
