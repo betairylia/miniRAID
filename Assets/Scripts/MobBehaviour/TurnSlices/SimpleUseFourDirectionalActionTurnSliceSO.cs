@@ -67,7 +67,7 @@ namespace miniRAID.MobBehaviour.TurnSlices
             {
                 indicatorShape.Position = mob.Position;
                 indicatorShape.Direction = target.Target;
-                (renderer as GridColliderIndicator)?.Update(indicatorShape, IgnoreWall ? mob.SpellCastPivot : null);
+                (renderer as GridColliderIndicator)?.Update(indicatorShape, IgnoreWall ? null : mob.SpellCastPivot);
             }
         }
     }
