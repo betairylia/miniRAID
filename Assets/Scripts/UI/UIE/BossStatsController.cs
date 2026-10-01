@@ -16,6 +16,7 @@ namespace miniRAID.UIElements
         VisualElement masterElem;
 
         MobData boss;
+        MobRenderer renderer;
 
         MobRootAgentBase agent;
 
@@ -35,6 +36,7 @@ namespace miniRAID.UIElements
 
         public void Register(MobRenderer mobRenderer)
         {
+            this.renderer = mobRenderer;
             this.boss = mobRenderer.data;
             this.agent = mobRenderer.data.FindListener<MobRootAgentBase>();
             Update();
@@ -42,6 +44,12 @@ namespace miniRAID.UIElements
 
         public void Update()
         {
+            // Rollback replaces data on a live renderer; death destroys the renderer.
+            if(renderer != null && !ReferenceEquals(boss, renderer.data))
+            {
+                boss = renderer.data;
+                agent = boss?.FindListener<MobRootAgentBase>();
+            }
             if(boss == null)
             {
                 nameLevelLabel.text = "UNKNOWN";
