@@ -15,6 +15,8 @@ namespace miniRAID.UIElements
         private readonly VisualElement masterElement;
         private readonly VisualElement toolTipContainer;
         private readonly Label toolTipLabel;
+        private readonly VisualElement actionToolTip;
+        private readonly Label actionMechanicText;
         private readonly MobDetailsController mobDetailsController;
         private readonly MobInfoController mobInfoController;
         private readonly miniRAID.UI.GridUI ui;
@@ -80,6 +82,13 @@ namespace miniRAID.UIElements
             listView = element.Q<ListView>();
             toolTipLabel = element.Q<Label>("ToolTipLabel");
             toolTipContainer = element.Q("ToolTip");
+            actionToolTip = Resources.Load<VisualTreeAsset>("UI/EquipmentComponents/skillBlock").CloneTree();
+            actionToolTip.AddToClassList("action-tooltip");
+            actionToolTip.styleSheets.Add(Resources.Load<StyleSheet>("UI/EquipmentInfo"));
+            actionMechanicText = new Label { name="ActionMechanic" };
+            actionMechanicText.AddToClassList("action-mechanic");
+            toolTipContainer.Add(actionToolTip);
+            toolTipContainer.Add(actionMechanicText);
 
             InitializeListView();
             RegisterEvents();
@@ -212,7 +221,20 @@ namespace miniRAID.UIElements
                 if (entry.useDefaultToolTip)
                 {
                     toolTipContainer.style.visibility = Visibility.Visible;
-                    toolTipLabel.text = entry.toolTip;
+                    bool skill = entry.runtimeAction!=null;
+                    toolTipLabel.EnableInClassList("tooltip-hidden",skill);
+                    actionToolTip.EnableInClassList("tooltip-hidden",!skill);
+                    string mechanic = null;
+                    if(skill)
+                    {
+                        entry.runtimeAction.ShowInUI(actionToolTip.Q("skillContainer"));
+                        var mob=entry.source?.data;
+                        mechanic=mob?.mainWeapon?.GetActionMechanicTooltip(entry.runtimeAction)
+                            ?? mob?.subWeapon?.GetActionMechanicTooltip(entry.runtimeAction);
+                    }
+                    else toolTipLabel.text = entry.toolTip;
+                    actionMechanicText.text = mechanic ?? "";
+                    actionMechanicText.EnableInClassList("tooltip-hidden",string.IsNullOrEmpty(mechanic));
                 }
                 else
                 {
@@ -392,7 +414,11 @@ namespace miniRAID.UIElements
 
         public void Dispose()
         {
+            HideMenu();
             UnregisterEvents();
+            listView.UnregisterCallback<GeometryChangedEvent>(OnInitialGeometryChanged, TrickleDown.NoTrickleDown);
+            actionToolTip.RemoveFromHierarchy();
+            actionMechanicText.RemoveFromHierarchy();
         }
 
         public static UIMenuEntry GetActionEntry(RuntimeAction action, MobRenderer source, string keycode = null,
@@ -403,7 +429,6 @@ namespace miniRAID.UIElements
                 action: action.RequestInUI(source.data),
                 onFinished: onFinished,
                 useDefaultToolTip: true,
-                toolTip: action.GetFullTooltip(source.data),
                 keycode: keycode,
                 runtimeAction: action,
                 source: source

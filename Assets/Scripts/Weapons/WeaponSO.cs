@@ -148,6 +148,8 @@ namespace miniRAID.Weapon
             return action?.QueryAbstractTarget(source);
         }
 
+        public virtual string GetActionMechanicTooltip(RuntimeAction action) => null;
+
         public virtual string GetWeaponSpecialAttackTooltip()
         {
             return Globals.localizer.L(new LocalizedString("Actions", $"weapon.{WeaponSO.GetWeaponName(weaponData.wpType)}.tooltip"));

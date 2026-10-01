@@ -9,6 +9,8 @@
 }
 
 #ToolTip {
+    width: 300px;
+    flex-shrink: 1;
     background-color: rgb(30, 28, 60);
     padding-left: 3px;
     padding-right: 3px;
@@ -34,6 +36,11 @@
     border-top-right-radius: 1px;
     border-bottom-right-radius: 1px;
 }
+
+#ToolTip .tooltip-hidden { display: none; }
+#ToolTip .action-tooltip #title { min-width: 0; flex-shrink: 1; }
+#ToolTip .action-tooltip #tooltip { white-space: normal; }
+#ToolTip .action-mechanic { white-space: normal; color: rgb(189, 236, 255); margin-top: 5px; }
 
 .MoreIcon {
     margin-left: 2px;

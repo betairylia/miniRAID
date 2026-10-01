@@ -38,6 +38,7 @@ namespace miniRAID.UIElements
 
         private void OnEnable()
         {
+            menu?.Dispose();
             // The UXML is already instantiated by the UIDocument component
             uiDocument = GetComponent<UIDocument>();
 

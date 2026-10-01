@@ -97,6 +97,9 @@ namespace miniRAID.Weapon
             return regenTimer <= 0 ? $"{staffData.specialAttack.data.ActionName}" : $"共鸣：剩余{regenTimer}";
         }
         
+        public override string GetActionMechanicTooltip(RuntimeAction action) =>
+            action==RspecialAttack ? GetWeaponSpecialAttackTooltip() : null;
+
         public override void ShowInUI(EquipmentController ui)
         {
             base.ShowInUI(ui);
