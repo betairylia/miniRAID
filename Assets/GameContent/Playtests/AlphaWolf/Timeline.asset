@@ -21,16 +21,15 @@ MonoBehaviour:
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
     SerializationNodes: []
-  Guid: 
+  Guid: 663d798b4f69b48b2a5d5fda1e1ff080
   Id: 0
   icon: {fileID: 0}
   turnSlices:
   - {fileID: 11400000, guid: 8eeda91bf1e454de4b8f8e4f0637a7e1, type: 2}
   - {fileID: 11400000, guid: 8d7e1ec5c3be34698acebc87739c64c9, type: 2}
   - {fileID: 11400000, guid: 5822b37ecfea946658fc6286def3c67b, type: 2}
-  - {fileID: 11400000, guid: 1c079d680d15b40538ceda51d77abcc3, type: 2}
-  - {fileID: 11400000, guid: 1c079d680d15b40538ceda51d77abcc3, type: 2}
-  - {fileID: 11400000, guid: 1c079d680d15b40538ceda51d77abcc3, type: 2}
-  - {fileID: 11400000, guid: 43220a35c6f064835ac25c5ba0698dc9, type: 2}
+  - {fileID: 11400000, guid: 81a878a0675a342cd99796490f2ea237, type: 2}
   - {fileID: 11400000, guid: f619a5879568a41868dbd1cd6cc7a0ce, type: 2}
+  - {fileID: 11400000, guid: 4977459b0045e46169fdb375605e21fb, type: 2}
+  - {fileID: 11400000, guid: 43220a35c6f064835ac25c5ba0698dc9, type: 2}
   - {fileID: 11400000, guid: 8e7760837754f4c63884b133cff19431, type: 2}

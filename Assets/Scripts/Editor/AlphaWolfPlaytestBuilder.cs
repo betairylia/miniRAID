@@ -27,7 +27,7 @@ public static class AlphaWolfPlaytestBuilder
     static LocalizedString Text(string key,string value)
     {
         var collection=LocalizationEditorSettings.GetStringTableCollection("Actions");
-        foreach(var table in collection.StringTables){table.AddEntry("alphawolf.lesson."+key,value);EditorUtility.SetDirty(table);}
+        foreach(var table in collection.StringTables){table.AddEntry("alphawolf.lesson."+key,value).IsSmart=value.Contains("{HitPower}");EditorUtility.SetDirty(table);}
         EditorUtility.SetDirty(collection.SharedData);
         return new LocalizedString("Actions","alphawolf.lesson."+key);
     }
@@ -47,8 +47,25 @@ public static class AlphaWolfPlaytestBuilder
         var r=obj.GetComponent<MobRenderer>();r.data.baseDescriptor=descriptor;r.data.unitGroup=group;r.handleDataInit=true;r.isBoss=false;
         return r;
     }
+    static void ConfigureArena()
+    {
+        var chunk=new Backend.Map.MapChunk(Vector3Int.zero);
+        for(int x=10;x<=22;x++)for(int z=10;z<=22;z++)
+        {chunk.SetIsStandable(x,0,z,true);chunk.SetIsSolid(x,0,z,true);chunk.SetIsPassable(x,0,z,false);}
+        var path=Dir+"/Arena.bytes";
+        if(AssetDatabase.LoadMainAssetAtPath(path)!=null)throw new Exception("Refusing to overwrite "+path);
+        System.IO.File.WriteAllBytes(path,chunk.SerializeToBytes());AssetDatabase.ImportAsset(path);
+        var settings=UnityEditor.AddressableAssets.AddressableAssetSettingsDefaultObject.Settings;
+        var entry=settings.CreateOrMoveEntry(AssetDatabase.AssetPathToGUID(path),settings.DefaultGroup);
+        entry.address="mapchunk_alphawolf-playtest_0_0_0";
+        EditorUtility.SetDirty(settings);AssetDatabase.SaveAssetIfDirty(settings);AssetDatabase.SaveAssetIfDirty(settings.DefaultGroup);
+        UnityEngine.Object.FindFirstObjectByType<Utils.SceneConfig>().mapName="alphawolf-playtest";
+        var renderer=UnityEngine.Object.FindFirstObjectByType<Backend.Map.MapRenderer>();
+        renderer.solidStandableBlockColor=renderer.standableBlockColor=new Color(.48f,.58f,.46f,1);
+        foreach(var stale in renderer.GetComponentsInChildren<MeshRenderer>().Where(x=>x.name.StartsWith("Chunk_")))UnityEngine.Object.DestroyImmediate(stale.gameObject);
+    }
     [MenuItem("miniRAID/AlphaWolf/Open playable lesson")]
-    public static void Open(){if(EditorApplication.isPlaying)throw new Exception("Stop Play first");EditorSceneManager.OpenScene(Scene);}
+    public static void Open(){if(EditorApplication.isPlaying)throw new Exception("Stop Play first");EditorSceneManager.OpenScene("Assets/Scenes/CombatBase.unity");EditorSceneManager.OpenScene(Scene,OpenSceneMode.Additive);}
     [MenuItem("miniRAID/AlphaWolf/Build lesson (one time)")]
     public static string Build()
     {
@@ -57,8 +74,7 @@ public static class AlphaWolfPlaytestBuilder
         System.IO.Directory.CreateDirectory(Dir);AssetDatabase.Refresh();
         var services=EditorSceneManager.OpenScene("Assets/Scenes/CombatBase.unity");
         var arena=EditorSceneManager.OpenScene("Assets/Scenes/OpenTest/AlphaWolf.unity",OpenSceneMode.Additive);
-        SceneManager.MergeScenes(arena,services);
-        foreach(var loader in UnityEngine.Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).Where(x=>x.GetType().Name=="CombatSceneLoader"))UnityEngine.Object.DestroyImmediate(loader);
+        SceneManager.SetActiveScene(arena);
         var renderers=UnityEngine.Object.FindObjectsByType<MobRenderer>(FindObjectsSortMode.None);
         var warrior=renderers.Single(x=>x.name=="1_Warrior");var wolf=renderers.Single(x=>x.name=="AlphaWolf");
         var wd=Clone((EnemyMobDescriptorSO)wolf.data.baseDescriptor,"LessonWolf");wd.rootAgent=null;wd.listenerSOs.Clear();wd.baseEnemyStats.MaxHP=480;wd.gridBody=new PointCollider();wolf.data.baseDescriptor=wd;wolf.transform.position=new Vector3(13.5f,1,15.5f);
@@ -84,21 +100,24 @@ public static class AlphaWolfPlaytestBuilder
         {
             var p=Copy(warrior,"Pillar "+(pillars.Count+1),pillarData,pos,Consts.UnitGroup.Enemy);
             foreach(var r in p.GetComponentsInChildren<SpriteRenderer>())r.enabled=false;
+            foreach(var r in p.GetComponentsInChildren<MeshRenderer>())r.enabled=false;
             var stone=GameObject.CreatePrimitive(PrimitiveType.Cube);stone.name="Stone pillar";stone.transform.SetParent(p.transform,false);stone.transform.localPosition=new Vector3(0,.8f,0);stone.transform.localScale=new Vector3(.7f,1.6f,.7f);UnityEngine.Object.DestroyImmediate(stone.GetComponent<Collider>());pillars.Add(p);
         }
         var lesson=new GameObject("AlphaWolf Lesson").AddComponent<AlphaWolfLesson>();lesson.wolfRenderer=wolf;lesson.partyRenderers=new[]{warrior,mage,healer};lesson.pillarRenderers=pillars.ToArray();
         lesson.bite=EnemyAction("bite","Wolf Bite",12);lesson.sweep=EnemyAction("sweep","Wolf Sweep",26);lesson.charge=EnemyAction("charge","Wolf Charge",32);lesson.roar=EnemyAction("roar","Wolf Roar",38);lesson.breakPillar=EnemyAction("pillar","Shatter Pillar",1000);
         var start=Step<StartTurnTurnSliceSO>("Start","Round");var prep=Step<AlphaWolfLessonStep>("Prepare","Wolf telegraph");prep.prepare=true;
-        var player=Step<CommonPlayerTurnSliceSO>("Player","[ PLAYER ]");
+        var player=Step<AlphaWolfPlayerSegment>("PlayerSegment","[ PLAYER ]");
         var resolve=Step<AlphaWolfLessonStep>("Resolve","Wolf resolves telegraph");resolve.prepare=false;
+        var finish=Step<AlphaWolfLessonStep>("Finish","Wolf phase-end bite");finish.finishPhase=true;
         var auto=Step<AutoAttackTurnSliceSO>("Auto","Auto Attack");auto.SkipUserInput=true;
         var recovery=Step<RecoveryTurnSliceSO>("Recovery","Recovery");
         var end=Step<EndTurnTurnSliceSO>("End","End round");
-        var generator=ScriptableObject.CreateInstance<AlphaWolfTurnGenerator>();generator.turnSlices=new List<TurnSliceSO>{start,recovery,prep,player,player,player,auto,resolve,end};Save(generator,"Timeline");
+        var generator=ScriptableObject.CreateInstance<AlphaWolfTurnGenerator>();generator.turnSlices=new List<TurnSliceSO>{start,recovery,prep,player,resolve,finish,auto,end};Save(generator,"Timeline");
         UnityEngine.Object.FindFirstObjectByType<TurnSchedulerComponent>().scheduler=generator;
         foreach(var asset in AssetDatabase.FindAssets("",new[]{Dir}).Select(AssetDatabase.GUIDToAssetPath).Select(AssetDatabase.LoadMainAssetAtPath).Where(x=>x!=null))EditorUtility.SetDirty(asset);
         foreach(var m in new[]{wolf,warrior}){EditorUtility.SetDirty(m);PrefabUtility.RecordPrefabInstancePropertyModifications(m);}
-        AssetDatabase.SaveAssets();EditorSceneManager.SaveScene(services,Scene);
+        ConfigureArena();
+        AssetDatabase.SaveAssets();EditorSceneManager.SaveScene(arena,Scene);
         EditorBuildSettings.scenes=EditorBuildSettings.scenes.Concat(new[]{new EditorBuildSettingsScene(Scene,true)}).ToArray();
         return Scene;
     }

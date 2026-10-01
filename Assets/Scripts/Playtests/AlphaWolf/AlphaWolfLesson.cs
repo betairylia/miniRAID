@@ -25,6 +25,7 @@ namespace miniRAID.AlphaWolfPlaytest
         public int RoarsReleased {get;private set;}
         public int SweepHits {get;private set;}
         public int ChargeHits {get;private set;}
+        public int SegmentsUsed {get;private set;}
         public int DamageToInterrupt=>Mathf.Max(0,roarThreshold-roarDamage);
         public string Mechanic=>stunned?"stunned":phase==0?"sweep":phase==1?"charge":"roar";
         public Vector3Int[] Danger=>danger.ToArray();
@@ -32,7 +33,9 @@ namespace miniRAID.AlphaWolfPlaytest
         MobData wolf;
         MobData[] party,pillars;
         int phase,roarDamage,stunTurns;
-        bool initialized,stunned,chargingRoar,interrupted,restarting;
+        bool initialized,stunned,chargingRoar,interrupted,restarting,chargePending;
+        Vector3Int previewOrigin, previewTarget;
+        bool previewValid;
         MobData chargeTarget;
         List<Vector3Int> chargePath=new();
         HashSet<Vector3Int> danger=new();
@@ -49,8 +52,9 @@ namespace miniRAID.AlphaWolfPlaytest
         }
         void Awake()
         {
-            Databackend.ResetForNewCombat();
-            Globals.combatTracker = new CombatTracker();
+            // Legacy merged scenes still initialize here; CombatBase owns additive startup.
+            if(FindFirstObjectByType<CombatSceneLoader>()==null)
+            {Databackend.ResetForNewCombat();Globals.combatTracker = new CombatTracker();}
         }
         void Initialize()
         {
@@ -58,6 +62,7 @@ namespace miniRAID.AlphaWolfPlaytest
             wolf=wolfRenderer.data;party=partyRenderers.Select(x=>x.data).ToArray();
             pillars=pillarRenderers.Select(x=>x.data).ToArray();
             wolf.OnDamageReceived.AddListener(OnWolfDamage);
+            foreach(var mob in party.Append(wolf))mob.OnRealDeath.AddListener(OnCombatantDeath);
             foreach(var action in new[]{bite,sweep,charge,roar,breakPillar})
                 runtimeActions.Add(wolf.AddAction(new ActionSOEntry {data=action,level=0}));
             initialized=true;
@@ -65,35 +70,37 @@ namespace miniRAID.AlphaWolfPlaytest
         public void Prepare()
         {
             Initialize();CheckOutcome();if(Finished)return;
-            ClearIndicator();danger.Clear();stunned=stunTurns>0;
-            if(stunned) {stunTurns--;Telegraph="STUNNED — one round to attack or recover";Record(Telegraph);return;}
+            phase=(Globals.combatMgr.Instance.now.currentTurnID-1)%3;SegmentsUsed=0;interrupted=false;chargingRoar=false;
+            chargePending=false;previewValid=false;ClearIndicator();danger.Clear();stunned=stunTurns>0;
+            if(stunned) {stunTurns--;Telegraph="STUNNED — wolf skips this entire phase; choose two party members";Record(Telegraph);return;}
             var living=party.Where(x=>!x.isDead).ToArray();
             if(phase==0)
             {
                 var target=living.OrderBy(x=>(x.GridPosition-wolf.GridPosition).sqrMagnitude).First();
                 danger=AlphaWolfGeometry.Sweep(wolf.GridPosition,target.GridPosition);
-                Telegraph="SWEEP — fixed purple cells after three player opportunities. Then BITE the nearest ally within 2 cells (any direction)";
+                Telegraph="SWEEP — fixed purple cells after one player segment.";
             }
             else if(phase==1)
             {
                 // Deterministic interpretation of the draft's low-defense / low-HP preference.
                 chargeTarget=living.OrderBy(x=>(float)x.defense).ThenBy(x=>(float)x.health).ThenBy(x=>x.nickname).First();
-                chargePath=AlphaWolfGeometry.ChargeLine(wolf.GridPosition,chargeTarget.GridPosition);
-                danger=chargePath.ToHashSet();
-                Telegraph="CHARGE — "+chargeTarget.nickname+"; locked path. A pillar or another ally stops and stuns the wolf";
+                chargePending=true;
+                RefreshChargePreview();
             }
             else
             {
-                if(phase==2){chargingRoar=true;interrupted=false;roarDamage=0;}
-                Telegraph=interrupted?"ROAR interrupted — recovery window":$"ROAR — {4-phase} round(s) left; deal {DamageToInterrupt} more damage to interrupt";
+                chargingRoar=true;roarDamage=0;
+                Telegraph=interrupted?"ROAR interrupted — recovery window":$"ROAR — {2-SegmentsUsed} player segment(s) left; deal {DamageToInterrupt} more damage to interrupt";
             }
-            if(danger.Count>0)indicator=new GridColliderIndicator(new EnumerateGridCollider(new GridShape{shape=danger}),GridOverlay.Types.INCOMING_ATTACK);
+            if(danger.Count>0 && indicator==null)indicator=new GridColliderIndicator(new EnumerateGridCollider(new GridShape{shape=danger}),GridOverlay.Types.INCOMING_ATTACK);
             Record(Telegraph);
         }
         public IEnumerator Resolve()
         {
             if(!initialized)yield break;
             CheckOutcome();if(Finished)yield break;
+            if(chargePending) RefreshChargePreview();
+            chargePending=false;
             ClearIndicator();
             if(stunned){Record("Stun consumed; no enemy attack");yield break;}
             if(phase==0)
@@ -104,7 +111,9 @@ namespace miniRAID.AlphaWolfPlaytest
             }
             else if(phase==1)
             {
-                foreach(var cell in chargePath)
+                if(!ChargeTargetAvailable)
+                { Record("Charge cancelled: marked target unavailable; no retarget"); }
+                foreach(var cell in ChargeTargetAvailable ? chargePath : new List<Vector3Int>())
                 {
                     var grid=Globals.backend.GetMap(cell);
                     if(grid==null || !grid.passable || grid.solid)
@@ -122,7 +131,7 @@ namespace miniRAID.AlphaWolfPlaytest
                     yield return new JumpIn(wolf.SetPosition(cell));
                 }
             }
-            else if(phase==3)
+            else if(phase==2)
             {
                 chargingRoar=false;
                 if(!interrupted)
@@ -132,13 +141,45 @@ namespace miniRAID.AlphaWolfPlaytest
                 }
                 else Record("Interrupted roar did not fire");
             }
-            // Bite is a separate, visibly documented nearby basic attack on sweep rounds only.
-            if(phase==0 && !wolf.isDead)
+            danger.Clear();CheckOutcome();
+            if(!Finished)Telegraph=interrupted?"ROAR INTERRUPTED — wolf stunned through next phase":
+                stunTurns>0?"CHARGE BLOCKED — wolf stunned through next phase":"Attack resolved; phase-end bite after both player segments";
+        }
+        public void CompletePlayerSegment()
+        {
+            SegmentsUsed++;
+            if(chargingRoar && !interrupted)
+                Telegraph=$"ROAR — {Mathf.Max(0,2-SegmentsUsed)} player segment(s) left; deal {DamageToInterrupt} more damage to interrupt";
+        }
+        public IEnumerator FinishPhase()
+        {
+            CheckOutcome();if(Finished)yield break;
+            if(stunned || stunTurns>0 || interrupted)
+            {Record("Stun suppresses phase-end bite");yield break;}
+            var nearby=party.Where(x=>!x.isDead && (x.GridPosition-wolf.GridPosition).sqrMagnitude<=4)
+                .OrderBy(x=>(x.GridPosition-wolf.GridPosition).sqrMagnitude).FirstOrDefault();
+            if(nearby!=null){Record("Phase-end bite");yield return new JumpIn(Hit(bite,nearby));}
+            else Record("Phase-end bite: nobody within 2 cells; no extra movement");
+            CheckOutcome();
+        }
+        bool ChargeTargetAvailable => chargeTarget!=null && !chargeTarget.isDead &&
+            Globals.backend.allMobs.Contains(chargeTarget) && chargeTarget.renderer!=null;
+        void RefreshChargePreview()
+        {
+            if(!chargePending)return;
+            if(!ChargeTargetAvailable)
             {
-                var nearby=party.Where(x=>!x.isDead && (x.GridPosition-wolf.GridPosition).sqrMagnitude<=4).OrderBy(x=>(x.GridPosition-wolf.GridPosition).sqrMagnitude).FirstOrDefault();
-                if(nearby!=null)yield return new JumpIn(Hit(bite,nearby));
+                ClearIndicator();danger.Clear();chargePath.Clear();previewValid=false;
+                Telegraph="CHARGE CANCELLED — marked target unavailable; no retarget";
+                return;
             }
-            phase=(phase+1)%4;CheckOutcome();
+            var origin=wolf.GridPosition;var target=chargeTarget.GridPosition;
+            if(previewValid && previewOrigin==origin && previewTarget==target)return;
+            previewOrigin=origin;previewTarget=target;previewValid=true;
+            chargePath=AlphaWolfGeometry.ChargeLine(origin,target);danger=chargePath.ToHashSet();
+            ClearIndicator();
+            if(danger.Count>0)indicator=new GridColliderIndicator(new EnumerateGridCollider(new GridShape{shape=danger}),GridOverlay.Types.INCOMING_ATTACK);
+            Telegraph="CHARGE — "+chargeTarget.nickname+"; follows this character. Resolves after ONE player segment. Lure behind a pillar or ally to stop and stun the wolf";
         }
         IEnumerator Hit(AlphaWolfLessonAction action,MobData target)
         {
@@ -146,22 +187,27 @@ namespace miniRAID.AlphaWolfPlaytest
             var runtime=(RuntimeAction<SingleMobTarget>)runtimeActions.First(x=>x.data==action);
             yield return new JumpIn(wolf.DoAction(runtime,new SingleMobTarget(target,target.GridPosition)));
         }
+        IEnumerator OnCombatantDeath(MobData mob,Consts.DamageHeal_Result result)
+        {
+            CheckOutcome();
+            yield break;
+        }
         IEnumerator OnWolfDamage(MobData mob,Consts.DamageHeal_Result result)
         {
             if(chargingRoar && !interrupted && result.source!=mob && result.type!=Consts.Elements.Heal && !result.isAvoid)
             {
                 roarDamage+=result.value;
                 if(roarDamage>=roarThreshold)
-                {interrupted=true;RoarsInterrupted++;Telegraph="ROAR INTERRUPTED — saved the party";Record(Telegraph);}
+                {interrupted=true;stunTurns=1;RoarsInterrupted++;Telegraph="ROAR INTERRUPTED — saved the party";Record(Telegraph);}
                 else Telegraph=$"ROAR — deal {DamageToInterrupt} more damage to interrupt";
             }
             yield break;
         }
         void Update()
         {
-            if(initialized)CheckOutcome();
+            if(initialized){CheckOutcome();if(!Finished)RefreshChargePreview();}
             if(lessonPanel==null)AttachPanel();
-            if(lessonText!=null)lessonText.text=Telegraph+"\nPillars broken "+PillarsBroken+" | Ally blocks "+Intercepts+" | Roars interrupted "+RoarsInterrupted;
+            if(lessonText!=null)lessonText.text=Telegraph+"\nPlayer segments "+SegmentsUsed+" / 2; choose distinct characters. Phase-end bite: nearest ally within 2 cells, unless stunned.\nPillars broken "+PillarsBroken+" | Ally blocks "+Intercepts+" | Roars interrupted "+RoarsInterrupted;
             restartButton?.SetEnabled(Finished && Globals.combatMgr.Instance.CombatStopped);
         }
         void AttachPanel()
@@ -175,7 +221,8 @@ namespace miniRAID.AlphaWolfPlaytest
             lessonPanel.styleSheets.Add(Resources.Load<StyleSheet>("UI/AlphaWolfLesson"));
             var title=new Label("ALPHA WOLF / THREE-PERSON LESSON");title.AddToClassList("alpha-title");lessonPanel.Add(title);
             lessonText=new Label {name="EncounterTelegraph"};lessonText.AddToClassList("alpha-text");lessonText.AddToClassList("tactical-text");lessonPanel.Add(lessonText);
-            var hint=new Label("Purple: locked attack cells. Pass each actor; if nobody can act, click empty ground then EndTurn. Roar: burst within two rounds. Defeat the wolf to win.");hint.AddToClassList("alpha-hint");lessonPanel.Add(hint);
+            var hint=new Label("3 characters / choose 2 per round. Purple sweep stays fixed; charge follows its marked character. Pass ends ONE segment; roar allows BOTH segments in this phase. Defeat the wolf to win.");hint.AddToClassList("alpha-hint");hint.style.display=DisplayStyle.None;
+            var tutorial=new Toggle("Show tutorial hints");tutorial.RegisterValueChangedCallback(e=>hint.style.display=e.newValue?DisplayStyle.Flex:DisplayStyle.None);lessonPanel.Add(tutorial);lessonPanel.Add(hint);
             restartButton=new Button(Restart){text="Restart lesson"};restartButton.AddToClassList("alpha-restart");lessonPanel.Add(restartButton);
             root.Add(lessonPanel);
         }
@@ -187,12 +234,13 @@ namespace miniRAID.AlphaWolfPlaytest
             if(Finished){chargingRoar=false;ClearIndicator();Telegraph=Outcome.ToUpperInvariant();Record(Telegraph);}
         }
         void ClearIndicator(){indicator?.Destroy();indicator=null;}
-        void OnDestroy(){lessonPanel?.RemoveFromHierarchy();ClearIndicator();if(initialized)wolf.OnDamageReceived.RemoveListener(OnWolfDamage);}
+        void OnDestroy(){lessonPanel?.RemoveFromHierarchy();ClearIndicator();if(initialized){wolf.OnDamageReceived.RemoveListener(OnWolfDamage);foreach(var mob in party.Append(wolf))mob.OnRealDeath.RemoveListener(OnCombatantDeath);}}
         public void Restart()
         {
             if(restarting || !Finished || !Globals.combatMgr.Instance.CombatStopped)return;
             restarting=true;
-            SceneManager.LoadScene(entryScene,LoadSceneMode.Single);
+            CombatSceneLoader.NextEncounter=gameObject.scene.path;
+            SceneManager.LoadScene("CombatBase",LoadSceneMode.Single);
         }
     }
 }

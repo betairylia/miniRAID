@@ -43,11 +43,13 @@ namespace miniRAID
         private void Awake()
         {
             sc = GetComponent<SerialCoroutine>();
-            completion = FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<ICombatCompletion>().FirstOrDefault();
         }
 
-        private void Start()
+        private IEnumerator Start()
         {
+            var loader=FindFirstObjectByType<CombatSceneLoader>();
+            if(loader!=null)yield return loader.EnsureLoaded();
+            completion=FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None).OfType<ICombatCompletion>().FirstOrDefault();
             // Try to read global config
             SceneConfig config = FindFirstObjectByType<SceneConfig>();
             turnWaitTime = config?.turnWaitTimeSec ?? 0.0f;

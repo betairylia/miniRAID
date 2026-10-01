@@ -1,5 +1,5 @@
 .alpha-lesson {
-    position: absolute; right: 8px; top: 72px; width: 300px;
+    position: absolute; right: 8px; top: 72px; width: 260px;
     padding: 10px; background-color: rgba(17, 24, 34, 0.96);
     border-left-width: 3px; border-left-color: rgb(231, 171, 87);
     color: rgb(242, 242, 242); font-size: 13px;
