@@ -21,15 +21,27 @@ MonoBehaviour:
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
     SerializationNodes: []
-  Guid: 
+  Guid: 81a878a0675a342cd99796490f2ea237
   Id: 0
   icon: {fileID: 0}
   barIcon: {fileID: 0}
   mainColor: {r: 0, g: 1, b: 1, a: 1}
   label: '[ PLAYER / choose 1 ]'
+  labelKey:
+    m_TableReference:
+      m_TableCollectionName: Actions
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: alphawolf.lesson.ui-player
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   showInUI: 1
   defaultCategory: 0
   allowedTurns: 
   allowedPhases: []
   message: 
   group: 0
+  references:
+    version: 2
+    RefIds: []

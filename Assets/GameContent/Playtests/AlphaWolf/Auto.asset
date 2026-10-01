@@ -21,15 +21,27 @@ MonoBehaviour:
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
     SerializationNodes: []
-  Guid: 
+  Guid: 43220a35c6f064835ac25c5ba0698dc9
   Id: 0
   icon: {fileID: 0}
   barIcon: {fileID: 0}
   mainColor: {r: 0, g: 1, b: 1, a: 1}
   label: Auto Attack
+  labelKey:
+    m_TableReference:
+      m_TableCollectionName: Actions
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: alphawolf.lesson.ui-auto
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   showInUI: 1
   defaultCategory: 0
   allowedTurns: 
   allowedPhases: []
   group: 0
   SkipUserInput: 1
+  references:
+    version: 2
+    RefIds: []

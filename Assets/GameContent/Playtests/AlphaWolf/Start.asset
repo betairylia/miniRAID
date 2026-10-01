@@ -21,13 +21,25 @@ MonoBehaviour:
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
     SerializationNodes: []
-  Guid: 
+  Guid: 8eeda91bf1e454de4b8f8e4f0637a7e1
   Id: 0
   icon: {fileID: 0}
   barIcon: {fileID: 0}
   mainColor: {r: 0, g: 1, b: 1, a: 1}
   label: Round
+  labelKey:
+    m_TableReference:
+      m_TableCollectionName: Actions
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: alphawolf.lesson.ui-round
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   showInUI: 1
   defaultCategory: 0
   allowedTurns: 
   allowedPhases: []
+  references:
+    version: 2
+    RefIds: []

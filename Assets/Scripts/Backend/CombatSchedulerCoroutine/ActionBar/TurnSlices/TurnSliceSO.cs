@@ -11,6 +11,7 @@ namespace miniRAID.TurnSchedule
         public Sprite barIcon;
         public Color mainColor;
         public string label;
+        public UnityEngine.Localization.LocalizedString labelKey;
         public bool showInUI = true;
 
         public TurnSliceCategory defaultCategory;
@@ -118,7 +119,19 @@ namespace miniRAID.TurnSchedule
         public TurnSliceMetadata metadata;
 
         public virtual bool ShowInUI => data.showInUI && (!muted);
-        public virtual string Label => data.label;
+        UnityEngine.Localization.Locale labelLocale;
+        string localizedLabel;
+        public virtual string Label
+        {
+            get
+            {
+                if(data.labelKey==null || data.labelKey.IsEmpty)return data.label;
+                var locale=UnityEngine.Localization.Settings.LocalizationSettings.SelectedLocale;
+                if(localizedLabel==null || labelLocale!=locale)
+                {labelLocale=locale;localizedLabel=Globals.localizer.L(data.labelKey)??data.label;}
+                return localizedLabel;
+            }
+        }
         public virtual Color MainColor => data.mainColor;
         public virtual Sprite BarIcon => data.barIcon;
         

@@ -135,13 +135,14 @@ namespace miniRAID
         }
 
         // TODO: Move me to another place specific for UI
-        public void UpdateSchedulerUI()
+        public void UpdateSchedulerUI(bool includeCurrent = false)
         {
             int length = 12;
 
+            var visible = (includeCurrent && currentTurnSlice != null
+                ? new[] { currentTurnSlice }.Concat(turnSchedule) : turnSchedule).Where(x => x.ShowInUI);
             string message = String.Join("\n",
-                turnSchedule
-                    .Where(x => x.ShowInUI)
+                visible
                     // .Skip(1)
                     .Take(length)
                     .Select(x =>
@@ -150,10 +151,8 @@ namespace miniRAID
             
             Globals.ui.Instance.combatView.schedulerPlaceholder.text = message;
 
-            var t = turnSchedule
-                .First(x => x.ShowInUI);
-
-            Globals.ui.Instance.combatView.currentTurnPlaceholder.text = $"<color=#{ColorUtility.ToHtmlStringRGB(t.MainColor)}> {t.Label} </color>";
+            var t = visible.FirstOrDefault();
+            Globals.ui.Instance.combatView.currentTurnPlaceholder.text = t == null ? "" : $"<color=#{ColorUtility.ToHtmlStringRGB(t.MainColor)}> {t.Label} </color>";
         }
 
         private IEnumerator Chill()

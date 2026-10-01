@@ -24,12 +24,79 @@ public static class AlphaWolfPlaytestBuilder
     static T Save<T>(T obj,string name) where T:UnityEngine.Object
     {var path=Dir+"/"+name+".asset";if(AssetDatabase.LoadMainAssetAtPath(path)!=null)throw new Exception("Refusing to overwrite "+path);AssetDatabase.CreateAsset(obj,path);return obj;}
     static T Clone<T>(T source,string name) where T:UnityEngine.Object=>Save(UnityEngine.Object.Instantiate(source),name);
-    static LocalizedString Text(string key,string value)
+    static readonly Dictionary<string,(string en,string zh)> PresentationText=new()
+    {
+        ["firebolt"]=("Fire Bolt","火焰箭"),
+        ["fireblast"]=("Fire Blast","烈焰冲击"),
+        ["staff"]=("Spark Staff","火花法杖"),
+        ["staff-description"]=("A staff attuned to fire.","寄宿着火焰之力的法杖。"),
+        ["bolt-description"]=("Deals {HitPower} Fire damage.","造成 {HitPower} 点火焰伤害。"),
+        ["blast-description"]=("Deals {HitPower} Fire damage.","造成 {HitPower} 点火焰伤害。"),
+        ["bite"]=("Wolf Bite","撕咬"),
+        ["sweep"]=("Wolf Sweep","横扫"),
+        ["charge"]=("Wolf Charge","冲锋"),
+        ["roar"]=("Wolf Roar","咆哮"),
+        ["pillar"]=("Shatter Pillar","击碎石柱"),
+        ["ui-title"]=("AlphaWolf","AlphaWolf"),
+        ["ui-preparing"]=("Preparing encounter…","准备战斗…"),
+        ["ui-stunned"]=("Stunned · resumes its next ability after this phase.","眩晕 · 本阶段停手，随后继续原本的下一招。"),
+        ["ui-sweep"]=("Sweep · purple cells are hit when this segment ends.","横扫 · 本段结束时命中紫色区域。"),
+        ["ui-charge"]=("Charge · follows {0} when this segment ends. Block with a pillar or ally.","冲锋 · 本段结束时追向 {0}。可用石柱或同伴拦截。"),
+        ["ui-roar"]=("Roar · {0} segments left; {1} more damage interrupts it.","咆哮 · 剩余 {0} 段；再造成 {1} 伤害可打断。"),
+        ["ui-interrupted"]=("Roar interrupted · stunned through the next phase.","咆哮打断 · 眩晕至下阶段结束。"),
+        ["ui-blocked"]=("Charge blocked · stunned through the next phase.","冲锋受阻 · 眩晕至下阶段结束。"),
+        ["ui-resolved"]=("Ability resolved.","本次技能已结算。"),
+        ["ui-cancelled"]=("Charge cancelled · marked target unavailable.","冲锋取消 · 标记目标已不可用。"),
+        ["ui-segments"]=("Segments {0}/2 · choose distinct allies","行动段 {0}/2 · 选择不同队员"),
+        ["ui-victory"]=("Victory","胜利"),
+        ["ui-defeat"]=("Defeat","战败"),
+        ["ui-restart"]=("Try again","重新挑战"),
+        ["ui-round"]=("Round","回合"),
+        ["ui-player"]=("Player","玩家行动"),
+        ["ui-auto"]=("Auto Attack","自动攻击"),
+        ["ui-recovery"]=("Recovery","恢复"),
+        ["ui-end"]=("End round","回合结束")
+    };
+    static LocalizedString Text(string key)
     {
         var collection=LocalizationEditorSettings.GetStringTableCollection("Actions");
-        foreach(var table in collection.StringTables){table.AddEntry("alphawolf.lesson."+key,value).IsSmart=value.Contains("{HitPower}");EditorUtility.SetDirty(table);}
+        var values=PresentationText[key];
+        foreach(var table in collection.StringTables)
+        {
+            string value=table.LocaleIdentifier.Code switch
+            {
+                "en-US"=>values.en,"zh-CN"=>values.zh,
+                _=>throw new InvalidOperationException("No lesson translation supplied for "+table.LocaleIdentifier.Code)
+            };
+            table.AddEntry("alphawolf.lesson."+key,value).IsSmart=value.Contains("{HitPower}");
+            EditorUtility.SetDirty(table);
+        }
         EditorUtility.SetDirty(collection.SharedData);
         return new LocalizedString("Actions","alphawolf.lesson."+key);
+    }
+    public static string UpdatePresentation()
+    {
+        if(EditorApplication.isPlaying)throw new InvalidOperationException("Stop Play before updating lesson assets");
+        var collection=LocalizationEditorSettings.GetStringTableCollection("Actions");
+        if(collection==null || !collection.StringTables.Any())throw new InvalidOperationException("Actions tables unavailable");
+        if(collection.StringTables.Any(t=>t.LocaleIdentifier.Code!="en-US" && t.LocaleIdentifier.Code!="zh-CN"))
+            throw new InvalidOperationException("Unexpected locale: supply its translation before updating");
+        var labels=new Dictionary<string,string>{{"Start","round"},{"PlayerSegment","player"},{"Auto","auto"},{"Recovery","recovery"},{"End","end"},{"Prepare","title"},{"Resolve","title"},{"Finish","title"}};
+        var slices=labels.Keys.ToDictionary(name=>name,name=>Load<TurnSliceSO>(Dir+"/"+name+".asset"));
+        if(slices.Values.Any(x=>x==null))throw new InvalidOperationException("Lesson timeline assets unavailable");
+        foreach(var key in PresentationText.Keys)Text(key);
+        foreach(var pair in labels)
+        {
+            var slice=slices[pair.Key];
+            slice.labelKey=new LocalizedString("Actions","alphawolf.lesson.ui-"+pair.Value);
+            if(slice is AlphaWolfLessonStep)slice.showInUI=false;
+            EditorUtility.SetDirty(slice);AssetDatabase.SaveAssetIfDirty(slice);
+        }
+        EditorUtility.SetDirty(collection);
+        LocalizationEditorSettings.EditorEvents.RaiseCollectionModified(null,collection);
+        foreach(var table in collection.StringTables)AssetDatabase.SaveAssetIfDirty(table);
+        AssetDatabase.SaveAssetIfDirty(collection.SharedData);AssetDatabase.SaveAssetIfDirty(collection);
+        return $"Updated {PresentationText.Count} bilingual entries and {slices.Count} lesson timeline labels";
     }
     static T Step<T>(string name,string label) where T:TurnSliceSO
     {var o=ScriptableObject.CreateInstance<T>();o.label=label;o.mainColor=Color.cyan;return Save(o,name);}
@@ -39,8 +106,8 @@ public static class AlphaWolfPlaytestBuilder
         if(f==null)throw new Exception("Missing damage helper");
         ((SpellDamageHeal)f.GetValue(action)).type=element;EditorUtility.SetDirty(action);
     }
-    static AlphaWolfLessonAction EnemyAction(string key,string label,float amount)
-    {var a=ScriptableObject.CreateInstance<AlphaWolfLessonAction>();a.ActionNameKey=Text(key,label);a.amount=amount;a.power=new PowerGetter(1);a.auxPower=new PowerGetter(1);a.power.powerFactor=new LeveledStats<float>(1);a.auxPower.powerFactor=new LeveledStats<float>(1);return Save(a,key);}
+    static AlphaWolfLessonAction EnemyAction(string key,float amount)
+    {var a=ScriptableObject.CreateInstance<AlphaWolfLessonAction>();a.ActionNameKey=Text(key);a.amount=amount;a.power=new PowerGetter(1);a.auxPower=new PowerGetter(1);a.power.powerFactor=new LeveledStats<float>(1);a.auxPower.powerFactor=new LeveledStats<float>(1);return Save(a,key);}
     static MobRenderer Copy(MobRenderer source,string name,BaseMobDescriptorSO descriptor,Vector3Int pos,Consts.UnitGroup group)
     {
         var obj=UnityEngine.Object.Instantiate(source.gameObject);obj.name=name;obj.transform.position=pos+new Vector3(.5f,0,.5f);
@@ -81,12 +148,12 @@ public static class AlphaWolfPlaytestBuilder
         var melee=Clone((MobDescriptorSO)warrior.data.baseDescriptor,"LessonGuardian");melee.nickname="Guardian";warrior.data.baseDescriptor=melee;warrior.name="Guardian";warrior.transform.position=new Vector3(16.5f,1,15.5f);
         var mageData=Clone(Load<MobDescriptorSO>("Assets/GameContent/Allies/Characters/D4.asset"),"LessonMage");mageData.nickname="Fire Mage";mageData.race=null;mageData.job=null;mageData.actionSOs=Array.Empty<ActionSOEntry>();
         var staff=Clone((StaffSO)mageData.mainWeaponSO,"SparkStaff");
-        var bolt=Clone((ActionDataSO)staff.regularAttack.data,"FireBolt");bolt.ActionNameKey=Text("firebolt","Fire Bolt");SetDamage(bolt,Consts.Elements.Fire);
-        var blast=Clone((ActionDataSO)staff.specialAttack.data,"FireBlast");blast.ActionNameKey=Text("fireblast","Fire Blast");SetDamage(blast,Consts.Elements.Fire);
-        staff.nameKey=Text("staff","Spark Staff");
-        staff.ToolTipKey=Text("staff-description","Tutorial fire staff. Fire Blast causes resonance: both staff attacks become unavailable until two recovery stages have passed.");
-        bolt.DescriptionKey=Text("bolt-description","Deals {HitPower} Fire damage to one legal target.");
-        blast.DescriptionKey=Text("blast-description","Deals {HitPower} Fire damage to one legal target. Resonance: this staff becomes unavailable until two recovery stages have passed.");
+        var bolt=Clone((ActionDataSO)staff.regularAttack.data,"FireBolt");bolt.ActionNameKey=Text("firebolt");SetDamage(bolt,Consts.Elements.Fire);
+        var blast=Clone((ActionDataSO)staff.specialAttack.data,"FireBlast");blast.ActionNameKey=Text("fireblast");SetDamage(blast,Consts.Elements.Fire);
+        staff.nameKey=Text("staff");
+        staff.ToolTipKey=Text("staff-description");
+        bolt.DescriptionKey=Text("bolt-description");
+        blast.DescriptionKey=Text("blast-description");
         staff.regularAttack=new ActionSOEntry{data=bolt,level=0};staff.specialAttack=new ActionSOEntry{data=blast,level=0};mageData.mainWeaponSO=staff;mageData.listenerSOs.Add(Load<MobListenerSO>("Assets/GameContent/Allies/Passives/GeneralResourceListeners/Mana.asset"));
         var mage=Copy(warrior,"Fire Mage",mageData,new Vector3Int(18,1,17),Consts.UnitGroup.Player);
         var healerData=Clone(mageData,"LessonHealer");healerData.nickname="Healer";healerData.mainWeaponSO=null;healerData.baseStats.VIT=12;
@@ -104,7 +171,7 @@ public static class AlphaWolfPlaytestBuilder
             var stone=GameObject.CreatePrimitive(PrimitiveType.Cube);stone.name="Stone pillar";stone.transform.SetParent(p.transform,false);stone.transform.localPosition=new Vector3(0,.8f,0);stone.transform.localScale=new Vector3(.7f,1.6f,.7f);UnityEngine.Object.DestroyImmediate(stone.GetComponent<Collider>());pillars.Add(p);
         }
         var lesson=new GameObject("AlphaWolf Lesson").AddComponent<AlphaWolfLesson>();lesson.wolfRenderer=wolf;lesson.partyRenderers=new[]{warrior,mage,healer};lesson.pillarRenderers=pillars.ToArray();
-        lesson.bite=EnemyAction("bite","Wolf Bite",12);lesson.sweep=EnemyAction("sweep","Wolf Sweep",26);lesson.charge=EnemyAction("charge","Wolf Charge",32);lesson.roar=EnemyAction("roar","Wolf Roar",38);lesson.breakPillar=EnemyAction("pillar","Shatter Pillar",1000);
+        lesson.bite=EnemyAction("bite",12);lesson.sweep=EnemyAction("sweep",26);lesson.charge=EnemyAction("charge",32);lesson.roar=EnemyAction("roar",38);lesson.breakPillar=EnemyAction("pillar",1000);
         var start=Step<StartTurnTurnSliceSO>("Start","Round");var prep=Step<AlphaWolfLessonStep>("Prepare","Wolf telegraph");prep.prepare=true;
         var player=Step<AlphaWolfPlayerSegment>("PlayerSegment","[ PLAYER ]");
         var resolve=Step<AlphaWolfLessonStep>("Resolve","Wolf resolves telegraph");resolve.prepare=false;
@@ -117,6 +184,7 @@ public static class AlphaWolfPlaytestBuilder
         foreach(var asset in AssetDatabase.FindAssets("",new[]{Dir}).Select(AssetDatabase.GUIDToAssetPath).Select(AssetDatabase.LoadMainAssetAtPath).Where(x=>x!=null))EditorUtility.SetDirty(asset);
         foreach(var m in new[]{wolf,warrior}){EditorUtility.SetDirty(m);PrefabUtility.RecordPrefabInstancePropertyModifications(m);}
         ConfigureArena();
+        UpdatePresentation();
         AssetDatabase.SaveAssets();EditorSceneManager.SaveScene(arena,Scene);
         EditorBuildSettings.scenes=EditorBuildSettings.scenes.Concat(new[]{new EditorBuildSettingsScene(Scene,true)}).ToArray();
         return Scene;

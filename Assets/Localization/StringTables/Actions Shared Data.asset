@@ -563,6 +563,82 @@ MonoBehaviour:
     m_Key: alphawolf.lesson.blast-description
     m_Metadata:
       m_Items: []
+  - m_Id: 422254984276467712
+    m_Key: alphawolf.lesson.ui-title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050624
+    m_Key: alphawolf.lesson.ui-preparing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050625
+    m_Key: alphawolf.lesson.ui-stunned
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050626
+    m_Key: alphawolf.lesson.ui-sweep
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050627
+    m_Key: alphawolf.lesson.ui-charge
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050628
+    m_Key: alphawolf.lesson.ui-roar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050629
+    m_Key: alphawolf.lesson.ui-interrupted
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050630
+    m_Key: alphawolf.lesson.ui-blocked
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050631
+    m_Key: alphawolf.lesson.ui-resolved
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050632
+    m_Key: alphawolf.lesson.ui-cancelled
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050633
+    m_Key: alphawolf.lesson.ui-segments
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050634
+    m_Key: alphawolf.lesson.ui-victory
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050635
+    m_Key: alphawolf.lesson.ui-defeat
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050636
+    m_Key: alphawolf.lesson.ui-restart
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050637
+    m_Key: alphawolf.lesson.ui-round
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050638
+    m_Key: alphawolf.lesson.ui-player
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050639
+    m_Key: alphawolf.lesson.ui-auto
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050640
+    m_Key: alphawolf.lesson.ui-recovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050641
+    m_Key: alphawolf.lesson.ui-end
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

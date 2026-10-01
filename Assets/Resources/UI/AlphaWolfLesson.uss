@@ -6,6 +6,5 @@
 }
 .alpha-title { font-size: 12px; color: rgb(231, 171, 87); margin-bottom: 8px; white-space: normal; }
 .alpha-text { white-space: normal; margin-bottom: 8px; }
-.alpha-hint { white-space: normal; font-size: 11px; color: rgb(190, 204, 211); }
 .alpha-restart { margin-top: 8px; padding: 5px; background-color: rgb(64, 88, 102); color: white; }
 .alpha-restart:disabled { display: none; }

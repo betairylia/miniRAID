@@ -669,21 +669,96 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 421837832134320128
-    m_Localized: 'Tutorial fire staff. Fire Blast causes resonance: both staff attacks
-      become unavailable until two recovery stages have passed.'
+    m_Localized: A staff attuned to fire.
     m_Metadata:
       m_Items: []
   - m_Id: 421837832134320129
-    m_Localized: Deals {HitPower} Fire damage to one legal target.
+    m_Localized: Deals {HitPower} Fire damage.
     m_Metadata:
       m_Items:
       - rid: 7611097214279484359
   - m_Id: 421837832134320130
-    m_Localized: 'Deals {HitPower} Fire damage to one legal target. Resonance: this
-      staff becomes unavailable until two recovery stages have passed.'
+    m_Localized: Deals {HitPower} Fire damage.
     m_Metadata:
       m_Items:
       - rid: 7611097214279484359
+  - m_Id: 422254984276467712
+    m_Localized: AlphaWolf
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050624
+    m_Localized: "Preparing encounter\u2026"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050625
+    m_Localized: "Stunned \xB7 resumes its next ability after this phase."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050626
+    m_Localized: "Sweep \xB7 purple cells are hit when this segment ends."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050627
+    m_Localized: "Charge \xB7 follows {0} when this segment ends. Block with a pillar
+      or ally."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050628
+    m_Localized: "Roar \xB7 {0} segments left; {1} more damage interrupts it."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050629
+    m_Localized: "Roar interrupted \xB7 stunned through the next phase."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050630
+    m_Localized: "Charge blocked \xB7 stunned through the next phase."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050631
+    m_Localized: Ability resolved.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050632
+    m_Localized: "Charge cancelled \xB7 marked target unavailable."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050633
+    m_Localized: "Segments {0}/2 \xB7 choose distinct allies"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050634
+    m_Localized: Victory
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050635
+    m_Localized: Defeat
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050636
+    m_Localized: Try again
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050637
+    m_Localized: Round
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050638
+    m_Localized: Player
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050639
+    m_Localized: Auto Attack
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050640
+    m_Localized: Recovery
+    m_Metadata:
+      m_Items: []
+  - m_Id: 422254984289050641
+    m_Localized: End round
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds:

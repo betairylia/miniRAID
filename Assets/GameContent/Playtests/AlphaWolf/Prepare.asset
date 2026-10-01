@@ -21,14 +21,27 @@ MonoBehaviour:
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
     SerializationNodes: []
-  Guid: 
+  Guid: 5822b37ecfea946658fc6286def3c67b
   Id: 0
   icon: {fileID: 0}
   barIcon: {fileID: 0}
   mainColor: {r: 0, g: 1, b: 1, a: 1}
   label: Wolf telegraph
-  showInUI: 1
+  labelKey:
+    m_TableReference:
+      m_TableCollectionName: Actions
+    m_TableEntryReference:
+      m_KeyId: 0
+      m_Key: alphawolf.lesson.ui-title
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
+  showInUI: 0
   defaultCategory: 0
   allowedTurns: 
   allowedPhases: []
   prepare: 1
+  finishPhase: 0
+  references:
+    version: 2
+    RefIds: []
