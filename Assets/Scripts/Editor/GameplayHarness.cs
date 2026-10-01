@@ -58,7 +58,7 @@ namespace miniRAID.EditorTools
                 if (!Live) return "not_ready";
                 if (fault != null) return "faulted";
                 if (Scheduler.CombatStopped && !Scheduler.ActionPending && !UI.isInAnimation) return "finished";
-                if (!Scheduler.WaitingForPlayer) return "resolving";
+                if (Scheduler.CombatFinished || !Scheduler.WaitingForPlayer) return "resolving";
                 if (UI.currentState is TargetRequesterUIState t && t.IsAwaitingChoice) return "await_target";
                 if (Scheduler.ActionPending || UI.isInAnimation) return "resolving";
                 return "await_command";

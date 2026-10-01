@@ -15,7 +15,7 @@ namespace miniRAID.UIElements
 
         VisualElement masterElem;
 
-        MobRenderer _mobRenderer;
+        MobData boss;
 
         MobRootAgentBase agent;
 
@@ -35,27 +35,27 @@ namespace miniRAID.UIElements
 
         public void Register(MobRenderer mobRenderer)
         {
-            this._mobRenderer = mobRenderer;
+            this.boss = mobRenderer.data;
             this.agent = mobRenderer.data.FindListener<MobRootAgentBase>();
             Update();
         }
 
         public void Update()
         {
-            if(this._mobRenderer == null)
+            if(boss == null)
             {
                 nameLevelLabel.text = "UNKNOWN";
             }
             else
             {
-                nameLevelLabel.text = $"Lv.{_mobRenderer.data.level} {_mobRenderer.data.nickname}";
-                hpNumber.text = $"{_mobRenderer.data.health} / {_mobRenderer.data.maxHealth}";
-                hpPercentage.text = $"{_mobRenderer.data.health / (float)_mobRenderer.data.maxHealth * 100.0f:0.0}%";
+                nameLevelLabel.text = $"Lv.{boss.level} {boss.nickname}";
+                hpNumber.text = $"{boss.health} / {boss.maxHealth}";
+                hpPercentage.text = $"{boss.health / (float)boss.maxHealth * 100.0f:0.0}%";
 
-                HPBar.style.width = new StyleLength(new Length((float)_mobRenderer.data.health / (float)_mobRenderer.data.maxHealth * 100.0f, LengthUnit.Percent));
+                HPBar.style.width = new StyleLength(new Length((float)boss.health / (float)boss.maxHealth * 100.0f, LengthUnit.Percent));
 
                 string effects = "";
-                foreach (var fx in _mobRenderer.data.listeners)
+                foreach (var fx in boss.listeners)
                 {
                     if (fx.type == MobListenerSO.ListenerType.Buff)
                     {
@@ -79,7 +79,7 @@ namespace miniRAID.UIElements
                 }
                 else
                 {
-                    incomingList.text = $"- INCOMING -\n{agent.GetIncomingString(_mobRenderer.data)}";
+                    incomingList.text = $"- INCOMING -\n{agent.GetIncomingString(boss)}";
                 }
             }
         }
