@@ -43,12 +43,12 @@ public static class AlphaWolfLessonChecks
         {
             var queue=timeline.GetNewTurn(ref stamp).ToList();
             var players=queue.Select((x,i)=>(x,i)).Where(x=>x.x.data is AlphaWolfPlayerSegment).ToArray();
-            var resolve=queue.FindIndex(x=>x.data is AlphaWolfLessonStep step && !step.prepare && !step.finishPhase);
+            var resolves=queue.Select((x,i)=>(x,i)).Where(x=>x.x.data is AlphaWolfLessonStep step && !step.prepare && !step.finishPhase).Select(x=>x.i).ToArray();
             var finish=queue.FindIndex(x=>x.data is AlphaWolfLessonStep step && step.finishPhase);
             Check(players.Length==2,"Phase must contain exactly two total player segments");
             Check(!ReferenceEquals(players[0].x,players[1].x),"Player segments share runtime locking state");
-            Check(resolve>players[0].i && (round%3==0?resolve>players[1].i:resolve<players[1].i),"1T/2T resolution boundary");
-            Check(finish>players[1].i && finish>resolve,"Bite overlaps windup");
+            Check(resolves.Length==2 && resolves[0]>players[0].i && resolves[0]<players[1].i && resolves[1]>players[1].i,"Both runtime resolution boundaries exist after prequeued stuns");
+            Check(finish>players[1].i && finish>resolves[1],"Bite overlaps windup");
             Check(queue.Count(x=>x.data is miniRAID.TurnSchedule.RecoveryTurnSliceSO)==(round==1?2:1),"Recovery count / first wake-up");
             Check(queue.All(x=>x.metadata.timestamp.currentTurnID==round),"Queue timestamps");
         }

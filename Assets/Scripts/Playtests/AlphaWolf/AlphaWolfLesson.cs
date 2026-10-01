@@ -32,7 +32,8 @@ namespace miniRAID.AlphaWolfPlaytest
         public string LockedTarget=>chargeTarget?.nickname;
         MobData wolf;
         MobData[] party,pillars;
-        int phase,roarDamage,stunTurns;
+        int phase=-1,roarDamage,stunTurns;
+        bool resolved;
         bool initialized,stunned,chargingRoar,interrupted,restarting,chargePending;
         Vector3Int previewOrigin, previewTarget;
         bool previewValid;
@@ -70,9 +71,11 @@ namespace miniRAID.AlphaWolfPlaytest
         public void Prepare()
         {
             Initialize();CheckOutcome();if(Finished)return;
-            phase=(Globals.combatMgr.Instance.now.currentTurnID-1)%3;SegmentsUsed=0;interrupted=false;chargingRoar=false;
+            SegmentsUsed=0;resolved=false;interrupted=false;chargingRoar=false;
             chargePending=false;previewValid=false;ClearIndicator();danger.Clear();stunned=stunTurns>0;
             if(stunned) {stunTurns--;Telegraph="STUNNED — wolf skips this entire phase; choose two party members";Record(Telegraph);return;}
+            // Stunned phases consume time, not an ability in the boss sequence.
+            phase=(phase+1)%3;
             var living=party.Where(x=>!x.isDead).ToArray();
             if(phase==0)
             {
@@ -97,7 +100,9 @@ namespace miniRAID.AlphaWolfPlaytest
         }
         public IEnumerator Resolve()
         {
-            if(!initialized)yield break;
+            // Future phases are queued ahead of time, so choose the boundary at execution.
+            if(!initialized || stunned || resolved || SegmentsUsed!=(phase==2?2:1))yield break;
+            resolved=true;
             CheckOutcome();if(Finished)yield break;
             if(chargePending) RefreshChargePreview();
             chargePending=false;

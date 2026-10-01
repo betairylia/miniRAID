@@ -20,10 +20,10 @@ namespace miniRAID.AlphaWolfPlaytest
             // Initial wake-up only. Subsequent recovery belongs to the END of each phase.
             if(timestamp.currentTurnID==1)steps.Add(recovery);
             steps.Add(prepare);steps.Add(player);
-            bool roar=(timestamp.currentTurnID-1)%3==2;
-            if(!roar)steps.Add(resolve);
+            // Runtime ability state owns timing: a stun pauses the sequence.
+            steps.Add(resolve);
             steps.Add(player);
-            if(roar)steps.Add(resolve);
+            steps.Add(resolve);
             steps.Add(finish);steps.Add(auto);steps.Add(recovery);steps.Add(end);
             now.currentTurnID++;
             return new TurnScheduleSequence(steps.Select(x=>x.Wrap(new TurnSliceMetadata(null){timestamp=timestamp})));
