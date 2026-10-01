@@ -77,7 +77,7 @@ public static class AlphaWolfPlaytestBuilder
         SceneManager.SetActiveScene(arena);
         var renderers=UnityEngine.Object.FindObjectsByType<MobRenderer>(FindObjectsSortMode.None);
         var warrior=renderers.Single(x=>x.name=="1_Warrior");var wolf=renderers.Single(x=>x.name=="AlphaWolf");
-        var wd=Clone((EnemyMobDescriptorSO)wolf.data.baseDescriptor,"LessonWolf");wd.rootAgent=null;wd.listenerSOs.Clear();wd.baseEnemyStats.MaxHP=480;wd.gridBody=new PointCollider();wolf.data.baseDescriptor=wd;wolf.transform.position=new Vector3(13.5f,1,15.5f);
+        var wd=Clone((EnemyMobDescriptorSO)wolf.data.baseDescriptor,"LessonWolf");wd.rootAgent=null;wd.listenerSOs.Clear();wd.baseEnemyStats.MaxHP=900;wd.gridBody=new PointCollider();wolf.data.baseDescriptor=wd;wolf.transform.position=new Vector3(13.5f,1,15.5f);
         var melee=Clone((MobDescriptorSO)warrior.data.baseDescriptor,"LessonGuardian");melee.nickname="Guardian";warrior.data.baseDescriptor=melee;warrior.name="Guardian";warrior.transform.position=new Vector3(16.5f,1,15.5f);
         var mageData=Clone(Load<MobDescriptorSO>("Assets/GameContent/Allies/Characters/D4.asset"),"LessonMage");mageData.nickname="Fire Mage";mageData.race=null;mageData.job=null;mageData.actionSOs=Array.Empty<ActionSOEntry>();
         var staff=Clone((StaffSO)mageData.mainWeaponSO,"SparkStaff");

@@ -102,7 +102,7 @@ MonoBehaviour:
       Data: miniRAID.EnemyMobDescriptorSO+EnemyStatBase, miniRAID.Core
     - Name: MaxHP
       Entry: 3
-      Data: 480
+      Data: 900
     - Name: ExHitAcc
       Entry: 4
       Data: 0
@@ -118,7 +118,7 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
-  Guid: c990e6bdb1f1444ccaebf3e7bea3f51f
+  Guid: 3f398241d92b34e0b8472aeaf0bed407
   Id: 239
   icon: {fileID: 0}
   nickname: 
