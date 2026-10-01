@@ -225,9 +225,6 @@ namespace miniRAID
         
         public void AppendNewTurn()
         {
-            // TODO: Timestamp is not correct!!!
-            // TODO: Provide timestamp that is later than "now" and actually corresponds to the new turns
-            Debug.LogError("Timestamp is not correct.");
             var newTurn = turnScheduler.GetNewTurn(ref appendedTurns);
             
             foreach (var turn in newTurn)
