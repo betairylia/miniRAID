@@ -583,12 +583,14 @@ MonoBehaviour:
   - m_Id: 421837832134320129
     m_Localized: Deals {HitPower} Fire damage to one legal target.
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 4697850929816272899
   - m_Id: 421837832134320130
     m_Localized: 'Deals {HitPower} Fire damage to one legal target. Resonance: this
       staff becomes unavailable until two recovery stages have passed.'
     m_Metadata:
-      m_Items: []
+      m_Items:
+      - rid: 4697850929816272899
   references:
     version: 2
     RefIds:
@@ -620,3 +622,5 @@ MonoBehaviour:
         - id: 32006559108767744
         - id: 32002359117291520
         - id: 64262258052247552
+        - id: 421837832134320129
+        - id: 421837832134320130
